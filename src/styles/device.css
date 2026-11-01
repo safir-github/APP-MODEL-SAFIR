@@ -67,6 +67,9 @@
   .device-scroll {
     display: block;
     height: 100%;
+    /* Espace de la barre d'état et de l'encoche : le contenu commence sous l'encoche */
+    padding-top: 48px;
+    box-sizing: border-box;
     overflow-x: hidden;
     overflow-y: auto;
     scrollbar-width: none;

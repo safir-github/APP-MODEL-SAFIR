@@ -23,3 +23,21 @@ Le script se termine par `Résultat : N réussi(s), M échec(s)` et un code de s
 - Les e-mails ne sont pas vérifiés (la fonction `mail()` ne fonctionne pas en local) : le jeton de réinitialisation est inséré directement en base par le test.
 - Le front (pages Astro) n'est pas testé automatiquement : `npm run build` vérifie seulement qu'il compile.
 - Un test de plus par projet : ajouter les contrôles propres à l'application dans le même fichier, après les contrôles du modèle.
+
+## Vérification dans le navigateur (à refaire après chaque changement d'interface)
+Tests lancés à la main sur `php -S localhost:8000 dev-router.php` après `npm run build`.
+
+**Ordinateur (1024 × 768), cadre d'iPhone affiché**
+- [ ] Connexion : œil du mot de passe, bascule de thème, copie du lien, partage (repli : copie), recharger.
+- [ ] Connexion avec un mauvais mot de passe : message d'erreur ; avec le bon : redirection vers l'accueil.
+- [ ] Accueil : barre d'onglets en bas, fixe pendant le défilement du contenu.
+- [ ] Compte : nom, changement d'e-mail (mauvais puis bon mot de passe), changement de mot de passe (mauvais puis bon), suppression du compte.
+- [ ] Mot de passe oublié, réinitialisation (deux mots de passe différents, puis identiques), confirmation d'e-mail sans jeton : messages corrects.
+- [ ] Déconnexion ; `/compte` sans connexion redirige vers `/login?from=/compte`.
+
+**Mobile (375 × 812)**
+- [ ] Pas de cadre d'iPhone ; contenu sans défilement horizontal.
+- [ ] Barre d'onglets fixée en bas de la fenêtre, pendant le défilement.
+- [ ] Mêmes parcours que sur ordinateur.
+
+Limites : l'envoi réel des e-mails et l'affichage sur un vrai téléphone ne sont pas vérifiés ici (voir docs/PREMIER_PROJET.md).
