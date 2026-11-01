@@ -28,4 +28,5 @@ Pour une application précise, ce modèle est combiné avec une **maquette HTML*
 - Interface, thèmes, mouvements : `docs/UI.md`
 - Maquettes : `docs/DESIGN.md` ; intégration : `docs/INTEGRATION.md`
 - Déploiement : `docs/DEPLOY.md`
+- Nouvelle application (cloner le modèle, historique Git séparé) : `docs/NOUVEAU_PROJET.md`
 - Tests : `docs/TESTS.md` ; premier déploiement d'une nouvelle application : `docs/PREMIER_PROJET.md`
