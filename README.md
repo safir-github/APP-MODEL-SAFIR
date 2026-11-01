@@ -25,6 +25,7 @@ authentification « rester connecté », déploiement FTP, thème clair/sombre, 
 - `api/cron/` et `api/lib/jobs.php` : tâches planifiées en ligne de commande.
 - `CLAUDE.md` : instructions pour l'agent (lu automatiquement).
 - `design/` : maquettes HTML des concepts (voir design/README.md).
+- `docs/PREMIER_PROJET.md` : liste de contrôle pour le premier déploiement d'une application.
 - `docs/` : architecture, authentification, déploiement, interface, e-mails, tâches planifiées, mot de passe oublié, maquettes (DESIGN.md).
 
 ## Historique
@@ -35,4 +36,5 @@ est reportée dans une application existante, la date et le nom du projet sont a
 - Aucun secret dans le dépôt (mots de passe, clés API, identifiants FTP).
 - Une seule source de vérité : corriger le modèle, puis reporter la correction dans les projets.
 - Chaque amélioration importante : une entrée dans le CHANGELOG, avec un commit dédié.
-# APP-MODEL-SAFIR
+## Dépôt GitHub
+https://github.com/safir-github/APP-MODEL-SAFIR

@@ -4,6 +4,52 @@ Toutes les améliorations du modèle, de la plus récente à la plus ancienne.
 Format : date, puis ce qui a changé et pourquoi. Les reports dans les projets sont notés
 sous « Reporté dans ».
 
+## 2026-11-01 (barre d'onglets fixe)
+
+- Barre d'onglets `src/components/TabBar.astro`, fixe en bas sur mobile et dans le cadre d'iPhone.
+  Le contenu défile dans `.device-scroll`, la barre est hors de cette zone (slot `tabs`) : elle ne défile pas.
+  La position est fixe ; l'apparence reste provisoire. Voir docs/UI.md.
+
+## 2026-11-01 (styles de test)
+
+- Les styles du modèle sont déclarés provisoires : bandeau dans `tokens.css`, `global.css`, `device.css`.
+  Ils seront remplacés entièrement par la maquette de chaque application. Voir docs/DESIGN.md.
+- Les icônes des pages d'authentification (recharger, partager, copier le lien, thème, œil) sont **fixes** : seul leur style change selon la maquette.
+- Le cadre d'iPhone sur ordinateur est **fixe** : il n'est pas provisoire et n'est jamais remplacé par la maquette.
+
+## 2026-11-01 (cadre d'iPhone sur ordinateur)
+
+- Sur ordinateur, chaque page s'affiche dans un cadre d'iPhone 393 × 852 avec encoche et indicateur d'accueil.
+  Le contenu est le même que sur mobile (mêmes DOM et styles), donc pas de second affichage.
+  Pourquoi : prévisualiser le rendu mobile sur PC sans conflit de styles. Voir docs/UI.md.
+
+## 2026-11-01 (icônes des pages d'authentification)
+
+- Barre d'icônes sur connexion, inscription et réinitialisation : recharger, partager l'application,
+  copier le lien de la page (lien direct vers connexion ou inscription), thème clair / sombre.
+- Icône œil pour afficher / masquer le mot de passe. Pourquoi : demande de l'utilisateur, repris de Ma Compta IA.
+
+## 2026-11-01 (nom et adresse e-mail)
+
+- **Nom** : colonne `users.name` (ALTER TABLE), `api/auth/update_profile.php`. Pourquoi : présent dans Muslim Kit.
+- **Changer l'adresse e-mail** : `request_email_change.php` et `confirm_email.php`, table `email_changes`.
+  Le lien de confirmation part vers la nouvelle adresse, pour éviter une prise de compte. Présent dans Muslim Kit (sans confirmation).
+- **Pages** : `/compte` (nom, e-mail) et `/confirmer-email?token=…`.
+- Tests : 41 contrôles (`npm test`).
+
+## 2026-11-01 (comptes, pages de mot de passe, tests)
+
+- **Changer le mot de passe** : `api/auth/change_password.php`. Mot de passe actuel demandé, limite d'essais,
+  et déconnexion des autres appareils (leurs jetons « Rester connecté » sont supprimés).
+  Pourquoi : fonction présente dans Muslim Kit et Playhouse Lab.
+- **Supprimer le compte** : `api/auth/delete_account.php`. Mot de passe demandé ; supprime jetons, journal des e-mails
+  et utilisateur. Pourquoi : fonction présente dans Muslim Kit et Talib Notes.
+- **Pages du front** : `/mot-de-passe-oublie` (lien depuis la connexion), `/reinitialiser?token=…` (manquante jusqu'ici),
+  `/compte` (changer le mot de passe, supprimer le compte ; lien « Mon compte » sur l'accueil).
+- **Tests automatiques** : `tests/run.php`, lancé par `npm test`. Serveur PHP sur base temporaire
+  (`APP_DB_PATH`), vrais appels HTTP, 29 contrôles (« Rester connecté » 90 jours compris). Voir `docs/TESTS.md`.
+- `api/config.php` : `DB_PATH` peut être donné par la variable d'environnement `APP_DB_PATH` (utilisé par les tests).
+
 ## 2026-11-01 (agent et maquettes)
 
 - `CLAUDE.md` à la racine : règles et carte du dépôt, lues automatiquement par Claude.

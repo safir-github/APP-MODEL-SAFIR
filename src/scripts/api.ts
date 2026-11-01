@@ -29,4 +29,17 @@ export const api = {
     request('/api/auth/forgot.php', { method: 'POST', body: JSON.stringify({ email }) }),
   reset: (token: string, password: string) =>
     request('/api/auth/reset.php', { method: 'POST', body: JSON.stringify({ token, password }) }),
+  changePassword: (currentPassword: string, newPassword: string) =>
+    request('/api/auth/change_password.php', {
+      method: 'POST',
+      body: JSON.stringify({ current_password: currentPassword, new_password: newPassword }),
+    }),
+  deleteAccount: (password: string) =>
+    request('/api/auth/delete_account.php', { method: 'POST', body: JSON.stringify({ password }) }),
+  updateProfile: (name: string) =>
+    request('/api/auth/update_profile.php', { method: 'POST', body: JSON.stringify({ name }) }),
+  requestEmailChange: (password: string, email: string) =>
+    request('/api/auth/request_email_change.php', { method: 'POST', body: JSON.stringify({ password, email }) }),
+  confirmEmail: (token: string) =>
+    request('/api/auth/confirm_email.php', { method: 'POST', body: JSON.stringify({ token }) }),
 };

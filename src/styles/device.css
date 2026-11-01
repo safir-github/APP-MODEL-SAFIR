@@ -1,0 +1,117 @@
+/*
+ * CADRE D'IPHONE — FIXE, NE PAS REMPLACER PAR LA MAQUETTE.
+ * Ce fichier fait partie du modèle permanent : il reproduit l'affichage mobile sur ordinateur.
+ * Les styles de la maquette ne doivent pas le modifier.
+ */
+/*
+ * Cadre d'iPhone sur ordinateur.
+ *
+ * Principe : le contenu est le même DOM, avec les mêmes styles, sur mobile et sur PC.
+ * Sur mobile, les enveloppes (.device-stage, .device-frame, .device-screen) ne font rien
+ * (display: contents) et le cadre est masqué : l'affichage est donc exactement le même.
+ * Sur ordinateur (écran large avec souris), le contenu est placé dans un cadre d'iPhone
+ * avec encoche. Aucune transform sur les enveloppes : la barre d'onglets reste fixe
+ * dans l'écran grâce à `contain: paint` (règle 7 de CLAUDE.md).
+ */
+
+.device-stage,
+.device-frame,
+.device-screen,
+.device-scroll {
+  display: contents;
+}
+.device-notch,
+.device-home {
+  display: none;
+}
+
+@media (min-width: 700px) and (hover: hover) and (pointer: fine) {
+  body {
+    height: 100dvh;
+    min-height: 0;
+    overflow: hidden;
+    background: var(--device-stage);
+  }
+
+  .device-stage {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+  }
+
+  /* Hauteur : l'écran entier, ou ce que la fenêtre peut afficher. Largeur proportionnelle. */
+  .device-frame {
+    position: relative;
+    display: block;
+    flex: none;
+    width: fit-content;
+    padding: var(--device-bezel);
+    border-radius: var(--device-radius);
+    background: var(--device-body);
+    box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.06), 0 30px 60px -20px rgba(0, 0, 0, 0.8);
+  }
+
+  /* L'écran ne défile pas : seule la zone .device-scroll défile. La barre d'onglets, placée
+     hors de .device-scroll, reste donc fixe. contain: paint rend `position: fixed` relatif à l'écran. */
+  .device-screen {
+    position: relative;
+    display: block;
+    height: min(852px, calc(100dvh - 2 * var(--device-bezel) - 48px));
+    aspect-ratio: var(--device-ratio);
+    overflow: hidden;
+    border-radius: var(--device-screen-radius);
+    background: var(--bg);
+    contain: paint;
+  }
+  .device-scroll {
+    display: block;
+    height: 100%;
+    /* Espace de la barre d'état et de l'encoche : le contenu commence sous l'encoche */
+    padding-top: 48px;
+    box-sizing: border-box;
+    overflow-x: hidden;
+    overflow-y: auto;
+    scrollbar-width: none;
+  }
+  .device-scroll::-webkit-scrollbar {
+    display: none;
+  }
+  .device-screen--center .device-scroll {
+    display: flex;
+    flex-direction: column;
+  }
+  .device-screen--center > .device-scroll > main {
+    margin: auto;
+  }
+
+  /* Encoche */
+  .device-notch {
+    display: block;
+    position: absolute;
+    top: calc(var(--device-bezel) + 10px);
+    left: 50%;
+    width: 124px;
+    height: 36px;
+    transform: translateX(-50%);
+    border-radius: 20px;
+    background: #000;
+    pointer-events: none;
+    z-index: 100;
+  }
+
+  /* Indicateur d'accueil */
+  .device-home {
+    display: block;
+    position: absolute;
+    bottom: calc(var(--device-bezel) + 8px);
+    left: 50%;
+    width: 134px;
+    height: 5px;
+    transform: translateX(-50%);
+    border-radius: 3px;
+    background: var(--device-home);
+    pointer-events: none;
+    z-index: 100;
+  }
+}

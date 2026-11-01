@@ -10,6 +10,9 @@ Sortie : une application qui garde toute l'architecture du modèle et reprend l'
    les écrans (`<section>` ou équivalents), et les données fictives dans `<script>`.
 
 ## Étape 2 : extraire les tokens
+Avant tout : les styles du modèle sont **provisoires** (voir docs/DESIGN.md). Les valeurs de test
+de `tokens.css` sont remplacées par celles de la maquette, sans en garder aucune.
+Exception : le bloc « CADRE D'IPHONE » de `tokens.css`, `device.css` et `DeviceFrame.astro` est fixe et ne se touche pas.
 Pour chaque variable CSS de la maquette (dans `:root` et `[data-theme=...]`) :
 - la reporter dans `src/styles/tokens.css` avec le même nom ;
 - si la maquette a un thème clair et un thème sombre, les deux sont reportés.

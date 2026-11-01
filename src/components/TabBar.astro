@@ -1,0 +1,31 @@
+---
+// Barre d'onglets du bas de l'écran. Fixe et centrée en bas sur mobile comme sur le cadre d'iPhone
+// (le cadre a `contain: paint`, donc la barre reste dans l'écran du cadre).
+// L'apparence vient de .tabbar et .tab dans tokens.css (provisoire) ; la position est ici (fixe).
+// Chaque onglet est un lien vers une page : `current` est le chemin de la page courante.
+export interface Tab {
+  href: string;
+  label: string;
+}
+const { tabs, current } = Astro.props as { tabs: Tab[]; current: string };
+---
+<nav class="tabbar" style={`--tab-count: ${tabs.length}`} aria-label="Navigation principale">
+  {tabs.map((tab) => {
+    const on = tab.href === current;
+    return (
+      <a href={tab.href} class:list={['tab', { on }]} aria-current={on ? 'page' : undefined}>
+        <span>{tab.label}</span>
+      </a>
+    );
+  })}
+</nav>
+
+<style>
+  .tabbar {
+    position: fixed;
+    left: 12px;
+    right: 12px;
+    bottom: calc(22px + env(safe-area-inset-bottom, 0px));
+    z-index: 50;
+  }
+</style>

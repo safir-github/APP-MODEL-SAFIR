@@ -1,5 +1,7 @@
 ---
 import '../styles/global.css';
+import AuthTools from '../components/AuthTools.astro';
+import DeviceFrame from '../components/DeviceFrame.astro';
 const { title = 'Connexion' } = Astro.props;
 ---
 <!doctype html>
@@ -14,9 +16,15 @@ const { title = 'Connexion' } = Astro.props;
       document.documentElement.dataset.theme = localStorage.getItem('app-theme') || 'dark';
     </script>
   </head>
-  <body class="min-h-screen flex items-center justify-center p-6">
-    <main class="w-full max-w-sm">
-      <slot />
-    </main>
+  <body class="min-h-screen flex flex-col items-center justify-center">
+    <DeviceFrame center>
+      <AuthTools />
+      <main class="w-full max-w-sm p-6">
+        <slot />
+      </main>
+    </DeviceFrame>
+    <script>
+      import '../scripts/auth-tools.ts';
+    </script>
   </body>
 </html>

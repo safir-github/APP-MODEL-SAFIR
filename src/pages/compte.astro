@@ -1,0 +1,181 @@
+---
+import AppLayout from '../layouts/AppLayout.astro';
+---
+<AppLayout title="Mon compte" current="/compte">
+  <div id="auth-gate" class="text-sm" style="color: var(--text-2)">Chargement…</div>
+  <div id="app-root" hidden>
+    <h1 class="font-serif text-3xl font-semibold mb-2" style="font-family: var(--serif)">Mon compte</h1>
+    <p id="user-email" class="text-sm mb-8" style="color: var(--text-2)"></p>
+
+    <section class="mb-10">
+      <h2 class="font-semibold mb-4">Nom</h2>
+      <div id="name-error" hidden class="mb-4 rounded-xl px-4 py-3 text-sm" style="color: var(--neg)"></div>
+      <div id="name-done" hidden class="mb-4 rounded-xl px-4 py-3 text-sm" style="color: var(--text-2)">Nom enregistré.</div>
+      <form id="name-form" class="space-y-4 max-w-sm">
+        <label class="block text-sm">
+          <span class="block mb-1.5" style="color: var(--text-2)">Votre nom (100 caractères au plus)</span>
+          <input id="name-input" type="text" name="name" maxlength="100" autocomplete="name" class="w-full h-12 rounded-2xl px-4 bg-transparent border" style="border-color: var(--line-2)" />
+        </label>
+        <button id="name-submit" type="submit" class="w-full h-12 rounded-3xl font-semibold" style="background: var(--copper); color: var(--on-accent)">
+          Enregistrer le nom
+        </button>
+      </form>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="font-semibold mb-4">Changer l'adresse e-mail</h2>
+      <div id="email-error" hidden class="mb-4 rounded-xl px-4 py-3 text-sm" style="color: var(--neg)"></div>
+      <div id="email-done" hidden class="mb-4 rounded-xl px-4 py-3 text-sm" style="color: var(--text-2)">
+        Un e-mail de confirmation vient d'être envoyé à la nouvelle adresse. L'adresse ne change qu'après ce lien.
+      </div>
+      <form id="email-form" class="space-y-4 max-w-sm">
+        <label class="block text-sm">
+          <span class="block mb-1.5" style="color: var(--text-2)">Nouvelle adresse e-mail</span>
+          <input type="email" name="email" required autocomplete="email" class="w-full h-12 rounded-2xl px-4 bg-transparent border" style="border-color: var(--line-2)" />
+        </label>
+        <label class="block text-sm">
+          <span class="block mb-1.5" style="color: var(--text-2)">Mot de passe actuel</span>
+          <input type="password" name="password" required autocomplete="current-password" class="w-full h-12 rounded-2xl px-4 bg-transparent border" style="border-color: var(--line-2)" />
+        </label>
+        <button id="email-submit" type="submit" class="w-full h-12 rounded-3xl font-semibold" style="background: var(--copper); color: var(--on-accent)">
+          Envoyer le lien de confirmation
+        </button>
+      </form>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="font-semibold mb-4">Changer le mot de passe</h2>
+      <div id="pwd-error" hidden class="mb-4 rounded-xl px-4 py-3 text-sm" style="color: var(--neg)"></div>
+      <div id="pwd-done" hidden class="mb-4 rounded-xl px-4 py-3 text-sm" style="color: var(--text-2)">
+        Mot de passe changé. Les autres appareils sont déconnectés.
+      </div>
+      <form id="pwd-form" class="space-y-4 max-w-sm">
+        <label class="block text-sm">
+          <span class="block mb-1.5" style="color: var(--text-2)">Mot de passe actuel</span>
+          <input type="password" name="current" required autocomplete="current-password" class="w-full h-12 rounded-2xl px-4 bg-transparent border" style="border-color: var(--line-2)" />
+        </label>
+        <label class="block text-sm">
+          <span class="block mb-1.5" style="color: var(--text-2)">Nouveau mot de passe (8 caractères minimum)</span>
+          <input type="password" name="password" required minlength="8" autocomplete="new-password" class="w-full h-12 rounded-2xl px-4 bg-transparent border" style="border-color: var(--line-2)" />
+        </label>
+        <button id="pwd-submit" type="submit" class="w-full h-12 rounded-3xl font-semibold" style="background: var(--copper); color: var(--on-accent)">
+          Changer le mot de passe
+        </button>
+      </form>
+    </section>
+
+    <section>
+      <h2 class="font-semibold mb-2" style="color: var(--neg)">Supprimer le compte</h2>
+      <p class="text-sm mb-4" style="color: var(--text-2)">Cette action est définitive : toutes vos données seront effacées.</p>
+      <div id="del-error" hidden class="mb-4 rounded-xl px-4 py-3 text-sm" style="color: var(--neg)"></div>
+      <form id="del-form" class="space-y-4 max-w-sm">
+        <label class="block text-sm">
+          <span class="block mb-1.5" style="color: var(--text-2)">Mot de passe pour confirmer</span>
+          <input type="password" name="password" required autocomplete="current-password" class="w-full h-12 rounded-2xl px-4 bg-transparent border" style="border-color: var(--line-2)" />
+        </label>
+        <button id="del-submit" type="submit" class="w-full h-12 rounded-3xl font-semibold border" style="border-color: var(--neg); color: var(--neg)">
+          Supprimer définitivement mon compte
+        </button>
+      </form>
+    </section>
+  </div>
+</AppLayout>
+
+<script>
+  import { api } from '../scripts/api';
+
+  // Garde d'authentification : sans utilisateur, retour à la connexion
+  (async () => {
+    const { data } = await api.me();
+    if (!data?.user) {
+      window.location.replace('/login?from=' + encodeURIComponent(window.location.pathname));
+      return;
+    }
+    document.getElementById('auth-gate')?.setAttribute('hidden', '');
+    document.getElementById('app-root')?.removeAttribute('hidden');
+    const emailEl = document.getElementById('user-email');
+    if (emailEl) emailEl.textContent = data.user.email;
+    const nameInput = document.getElementById('name-input') as HTMLInputElement;
+    nameInput.value = data.user.name || '';
+  })();
+
+  function showMsg(id: string, msg: string) {
+    const el = document.getElementById(id) as HTMLElement;
+    el.textContent = msg;
+    el.hidden = !msg;
+  }
+
+  // Nom
+  const nameForm = document.getElementById('name-form') as HTMLFormElement;
+  nameForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    showMsg('name-error', '');
+    (document.getElementById('name-done') as HTMLElement).hidden = true;
+    const name = String(new FormData(nameForm).get('name') || '').trim();
+    const btn = document.getElementById('name-submit') as HTMLButtonElement;
+    btn.disabled = true;
+    const { ok, data } = await api.updateProfile(name);
+    btn.disabled = false;
+    if (!ok) {
+      showMsg('name-error', data?.error || 'Le nom n’a pas pu être enregistré.');
+      return;
+    }
+    (document.getElementById('name-done') as HTMLElement).hidden = false;
+  });
+
+  // Adresse e-mail (confirmation par lien envoyé à la nouvelle adresse)
+  const emailForm = document.getElementById('email-form') as HTMLFormElement;
+  emailForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    showMsg('email-error', '');
+    (document.getElementById('email-done') as HTMLElement).hidden = true;
+    const fd = new FormData(emailForm);
+    const btn = document.getElementById('email-submit') as HTMLButtonElement;
+    btn.disabled = true;
+    const { ok, data } = await api.requestEmailChange(String(fd.get('password') || ''), String(fd.get('email') || ''));
+    btn.disabled = false;
+    if (!ok) {
+      showMsg('email-error', data?.error || 'La demande n’a pas pu être envoyée.');
+      return;
+    }
+    emailForm.reset();
+    (document.getElementById('email-done') as HTMLElement).hidden = false;
+  });
+
+  // Mot de passe
+  const pwdForm = document.getElementById('pwd-form') as HTMLFormElement;
+  pwdForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    showMsg('pwd-error', '');
+    (document.getElementById('pwd-done') as HTMLElement).hidden = true;
+    const fd = new FormData(pwdForm);
+    const btn = document.getElementById('pwd-submit') as HTMLButtonElement;
+    btn.disabled = true;
+    const { ok, data } = await api.changePassword(String(fd.get('current') || ''), String(fd.get('password') || ''));
+    btn.disabled = false;
+    if (!ok) {
+      showMsg('pwd-error', data?.error || 'Le mot de passe n’a pas pu être changé.');
+      return;
+    }
+    pwdForm.reset();
+    (document.getElementById('pwd-done') as HTMLElement).hidden = false;
+  });
+
+  // Suppression
+  const delForm = document.getElementById('del-form') as HTMLFormElement;
+  delForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    showMsg('del-error', '');
+    if (!window.confirm('Supprimer définitivement votre compte et toutes vos données ?')) return;
+    const password = String(new FormData(delForm).get('password') || '');
+    const btn = document.getElementById('del-submit') as HTMLButtonElement;
+    btn.disabled = true;
+    const { ok, data } = await api.deleteAccount(password);
+    btn.disabled = false;
+    if (!ok) {
+      showMsg('del-error', data?.error || 'Le compte n’a pas pu être supprimé.');
+      return;
+    }
+    window.location.replace('/login');
+  });
+</script>

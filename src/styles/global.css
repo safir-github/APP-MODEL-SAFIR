@@ -1,3 +1,10 @@
+/*
+ * STYLES DE TEST DU MODÈLE — PROVISOIRES.
+ * Ces couleurs, polices et tailles servent uniquement à tester l'affichage des interfaces du modèle.
+ * Ils seront remplacés entièrement par les styles de la maquette fournie au début du projet
+ * (voir docs/DESIGN.md et docs/INTEGRATION.md). Ne pas les considérer comme définitifs.
+ */
 @import url('https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&family=Inter:wght@400;500;600;700&display=swap');
 @import 'tailwindcss';
 @import './tokens.css';
+@import './device.css';

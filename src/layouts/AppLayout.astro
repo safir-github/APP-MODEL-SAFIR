@@ -1,6 +1,8 @@
 ---
 import '../styles/global.css';
-const { title = 'Mon app' } = Astro.props;
+import DeviceFrame from '../components/DeviceFrame.astro';
+import TabBar from '../components/TabBar.astro';
+const { title = 'Mon app', current = '/', tabs = [{ href: '/', label: 'Accueil' }, { href: '/compte', label: 'Mon compte' }] } = Astro.props;
 ---
 <!doctype html>
 <html lang="fr">
@@ -15,8 +17,11 @@ const { title = 'Mon app' } = Astro.props;
     </script>
   </head>
   <body class="min-h-screen">
-    <div class="max-w-md mx-auto px-5 pt-8 pb-40">
-      <slot />
-    </div>
+    <DeviceFrame>
+      <div class="max-w-md mx-auto px-5 pt-8 pb-40">
+        <slot />
+      </div>
+      <TabBar slot="tabs" tabs={tabs} current={current} />
+    </DeviceFrame>
   </body>
 </html>

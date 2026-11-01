@@ -7,6 +7,7 @@
     "dev": "astro dev",
     "build": "astro build",
     "php": "php -S localhost:8000 dev-router.php",
+    "test": "php tests/run.php",
     "preview": "npm run build && php -S localhost:8000 dev-router.php",
     "astro": "astro"
   },

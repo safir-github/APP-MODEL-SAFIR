@@ -50,7 +50,7 @@ function current_user(): ?array {
     start_app_session();
     if (empty($_SESSION['user_id'])) restore_from_remember_token();
     if (empty($_SESSION['user_id'])) return null;
-    $stmt = db()->prepare('SELECT id, email, created_at FROM users WHERE id = ?');
+    $stmt = db()->prepare('SELECT id, email, name, created_at FROM users WHERE id = ?');
     $stmt->execute([$_SESSION['user_id']]);
     $u = $stmt->fetch();
     return $u ?: null;
