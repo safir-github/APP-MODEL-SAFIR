@@ -35,4 +35,5 @@ est reportée dans une application existante, la date et le nom du projet sont a
 - Aucun secret dans le dépôt (mots de passe, clés API, identifiants FTP).
 - Une seule source de vérité : corriger le modèle, puis reporter la correction dans les projets.
 - Chaque amélioration importante : une entrée dans le CHANGELOG, avec un commit dédié.
-# APP-MODEL-SAFIR
+## Dépôt GitHub
+https://github.com/safir-github/APP-MODEL-SAFIR
