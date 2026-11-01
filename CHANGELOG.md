@@ -4,6 +4,12 @@ Toutes les améliorations du modèle, de la plus récente à la plus ancienne.
 Format : date, puis ce qui a changé et pourquoi. Les reports dans les projets sont notés
 sous « Reporté dans ».
 
+## 2026-11-01 (cadre d'iPhone sur ordinateur)
+
+- Sur ordinateur, chaque page s'affiche dans un cadre d'iPhone 393 × 852 avec encoche et indicateur d'accueil.
+  Le contenu est le même que sur mobile (mêmes DOM et styles), donc pas de second affichage.
+  Pourquoi : prévisualiser le rendu mobile sur PC sans conflit de styles. Voir docs/UI.md.
+
 ## 2026-11-01 (icônes des pages d'authentification)
 
 - Barre d'icônes sur connexion, inscription et réinitialisation : recharger, partager l'application,
