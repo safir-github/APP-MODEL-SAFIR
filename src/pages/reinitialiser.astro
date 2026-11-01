@@ -1,0 +1,64 @@
+---
+import AuthLayout from '../layouts/AuthLayout.astro';
+---
+<AuthLayout title="Nouveau mot de passe">
+  <h1 class="font-serif text-3xl font-semibold mb-6" style="font-family: var(--serif)">Nouveau mot de passe</h1>
+  <div id="error-msg" hidden class="mb-4 rounded-xl px-4 py-3 text-sm" style="color: var(--neg)"></div>
+  <div id="done-msg" hidden class="mb-4 rounded-xl px-4 py-3 text-sm" style="color: var(--text-2)">
+    Votre mot de passe a été changé. <a href="/login" style="color: var(--copper)">Se connecter</a>
+  </div>
+  <form id="reset-form" class="space-y-4">
+    <label class="block text-sm">
+      <span class="block mb-1.5" style="color: var(--text-2)">Nouveau mot de passe (8 caractères minimum)</span>
+      <input type="password" name="password" required minlength="8" autocomplete="new-password" class="w-full h-12 rounded-2xl px-4 bg-transparent border" style="border-color: var(--line-2)" />
+    </label>
+    <label class="block text-sm">
+      <span class="block mb-1.5" style="color: var(--text-2)">Confirmer le mot de passe</span>
+      <input type="password" name="confirm" required minlength="8" autocomplete="new-password" class="w-full h-12 rounded-2xl px-4 bg-transparent border" style="border-color: var(--line-2)" />
+    </label>
+    <button id="submit-btn" type="submit" class="w-full h-12 rounded-3xl font-semibold" style="background: var(--copper); color: var(--on-accent)">
+      Enregistrer
+    </button>
+  </form>
+</AuthLayout>
+
+<script>
+  import { api } from '../scripts/api';
+
+  const form = document.getElementById('reset-form') as HTMLFormElement;
+  const submitBtn = document.getElementById('submit-btn') as HTMLButtonElement;
+  const errorEl = document.getElementById('error-msg') as HTMLElement;
+  const doneEl = document.getElementById('done-msg') as HTMLElement;
+
+  function showError(msg: string) {
+    errorEl.textContent = msg;
+    errorEl.hidden = false;
+  }
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    errorEl.hidden = true;
+    const fd = new FormData(form);
+    const password = String(fd.get('password') || '');
+    const confirm = String(fd.get('confirm') || '');
+    if (password !== confirm) {
+      showError('Les deux mots de passe ne correspondent pas.');
+      return;
+    }
+    // Le jeton vient du lien reçu par e-mail (paramètre ?token=)
+    const token = new URLSearchParams(window.location.search).get('token') || '';
+    if (!token) {
+      showError('Ce lien de réinitialisation est invalide ou a expiré.');
+      return;
+    }
+    submitBtn.disabled = true;
+    const { ok, data } = await api.reset(token, password);
+    submitBtn.disabled = false;
+    if (!ok) {
+      showError(data?.error || 'Une erreur est survenue. Réessayez.');
+      return;
+    }
+    form.hidden = true;
+    doneEl.hidden = false;
+  });
+</script>

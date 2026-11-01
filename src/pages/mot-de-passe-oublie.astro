@@ -1,0 +1,48 @@
+---
+import AuthLayout from '../layouts/AuthLayout.astro';
+---
+<AuthLayout title="Mot de passe oublié">
+  <h1 class="font-serif text-3xl font-semibold mb-6" style="font-family: var(--serif)">Mot de passe oublié</h1>
+  <div id="error-msg" hidden class="mb-4 rounded-xl px-4 py-3 text-sm" style="color: var(--neg)"></div>
+  <div id="info-msg" hidden class="mb-4 rounded-xl px-4 py-3 text-sm" style="color: var(--text-2)"></div>
+  <form id="forgot-form" class="space-y-4">
+    <label class="block text-sm">
+      <span class="block mb-1.5" style="color: var(--text-2)">Adresse e-mail</span>
+      <input type="email" name="email" required autocomplete="email" class="w-full h-12 rounded-2xl px-4 bg-transparent border" style="border-color: var(--line-2)" />
+    </label>
+    <button id="submit-btn" type="submit" class="w-full h-12 rounded-3xl font-semibold" style="background: var(--copper); color: var(--on-accent)">
+      Recevoir le lien
+    </button>
+  </form>
+  <p class="mt-6 text-sm text-center" style="color: var(--text-2)">
+    <a href="/login" style="color: var(--copper)">Retour à la connexion</a>
+  </p>
+</AuthLayout>
+
+<script>
+  import { api } from '../scripts/api';
+
+  const form = document.getElementById('forgot-form') as HTMLFormElement;
+  const submitBtn = document.getElementById('submit-btn') as HTMLButtonElement;
+  const errorEl = document.getElementById('error-msg') as HTMLElement;
+  const infoEl = document.getElementById('info-msg') as HTMLElement;
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    errorEl.hidden = true;
+    infoEl.hidden = true;
+    const email = String(new FormData(form).get('email') || '').trim();
+    submitBtn.disabled = true;
+    const { ok, data } = await api.forgot(email);
+    submitBtn.disabled = false;
+    if (!ok) {
+      errorEl.textContent = data?.error || 'Une erreur est survenue. Réessayez.';
+      errorEl.hidden = false;
+      return;
+    }
+    // Même message, que le compte existe ou non
+    infoEl.textContent = data?.message || 'Si un compte existe pour cette adresse, un e-mail vient d’être envoyé.';
+    infoEl.hidden = false;
+    form.reset();
+  });
+</script>
