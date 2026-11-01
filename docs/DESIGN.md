@@ -9,10 +9,13 @@ interfaces fonctionnent et s'affichent correctement dans le modèle.
   de chaque application (dossier `design/`).
 - Ne pas les adapter ni les compléter pour une application réelle : les remplacer, en suivant la
   procédure ci-dessous et `docs/INTEGRATION.md`.
-- Les fichiers concernés portent un bandeau « STYLES DE TEST » : `src/styles/tokens.css`,
-  `src/styles/global.css`, `src/styles/device.css`.
-- Le cadre d'iPhone (`device.css`, `DeviceFrame.astro`) est un outil de prévisualisation : il peut
-  rester, mais ses couleurs et tailles doivent suivre la maquette.
+- Les fichiers concernés portent un bandeau « STYLES DE TEST » : `src/styles/tokens.css`
+  (sauf le bloc du cadre) et `src/styles/global.css`.
+
+## Ce qui est FIXE (ne se remplace jamais)
+- **Le cadre d'iPhone sur ordinateur** : `src/styles/device.css`, `src/components/DeviceFrame.astro`,
+  et le bloc « CADRE D'IPHONE » de `tokens.css`. Il reproduit automatiquement l'affichage mobile de
+  l'application sur PC, avec encoche, sans second affichage ni style propre. La maquette ne doit pas le modifier.
 
 Principe : le modèle fournit l'architecture (API, authentification, déploiement, logique).
 Chaque application reçoit sa **maquette** du designer, qui fournit l'apparence.

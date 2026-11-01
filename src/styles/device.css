@@ -1,8 +1,7 @@
 /*
- * STYLES DE TEST DU MODÈLE — PROVISOIRES.
- * Ces couleurs, polices et tailles servent uniquement à tester l'affichage des interfaces du modèle.
- * Ils seront remplacés entièrement par les styles de la maquette fournie au début du projet
- * (voir docs/DESIGN.md et docs/INTEGRATION.md). Ne pas les considérer comme définitifs.
+ * CADRE D'IPHONE — FIXE, NE PAS REMPLACER PAR LA MAQUETTE.
+ * Ce fichier fait partie du modèle permanent : il reproduit l'affichage mobile sur ordinateur.
+ * Les styles de la maquette ne doivent pas le modifier.
  */
 /*
  * Cadre d'iPhone sur ordinateur.

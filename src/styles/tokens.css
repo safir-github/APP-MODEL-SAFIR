@@ -3,6 +3,7 @@
  * Ces couleurs, polices et tailles servent uniquement à tester l'affichage des interfaces du modèle.
  * Ils seront remplacés entièrement par les styles de la maquette fournie au début du projet
  * (voir docs/DESIGN.md et docs/INTEGRATION.md). Ne pas les considérer comme définitifs.
+ * EXCEPTION : le bloc « CADRE D'IPHONE » ci-dessous est permanent et ne se remplace pas.
  */
 /* Tokens de design communs — thème sombre par défaut, clair via <html data-theme="light"> */
 :root {
@@ -31,7 +32,7 @@
   --tab-text: rgba(244, 239, 231, 0.72);
   --tab-border: rgba(255, 255, 255, 0.2);
   --tab-shadow: 0 14px 34px -10px rgba(0, 0, 0, 0.75);
-  /* Cadre d'iPhone sur ordinateur (voir src/styles/device.css) */
+  /* CADRE D'IPHONE — FIXE, ne pas remplacer par la maquette (voir src/styles/device.css) */
   --device-ratio: 393 / 852;
   --device-bezel: 14px;
   --device-radius: 58px;
