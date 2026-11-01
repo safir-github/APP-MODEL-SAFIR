@@ -1,5 +1,6 @@
 ---
 import '../styles/global.css';
+import DeviceFrame from '../components/DeviceFrame.astro';
 const { title = 'Mon app' } = Astro.props;
 ---
 <!doctype html>
@@ -15,8 +16,10 @@ const { title = 'Mon app' } = Astro.props;
     </script>
   </head>
   <body class="min-h-screen">
-    <div class="max-w-md mx-auto px-5 pt-8 pb-40">
-      <slot />
-    </div>
+    <DeviceFrame>
+      <div class="max-w-md mx-auto px-5 pt-8 pb-40">
+        <slot />
+      </div>
+    </DeviceFrame>
   </body>
 </html>
