@@ -1,5 +1,19 @@
 # Design : comment une maquette se branche sur le modèle
 
+## Statut des styles du modèle : PROVISOIRES
+Tous les styles livrés avec le modèle (couleurs, polices, rayons, ombres, mise en page des pages,
+icônes, cadre d'iPhone) sont **des styles de test**. Ils servent uniquement à vérifier que les
+interfaces fonctionnent et s'affichent correctement dans le modèle.
+
+- Ils seront **entièrement remplacés** par les styles de la maquette que le designer fournit au début
+  de chaque application (dossier `design/`).
+- Ne pas les adapter ni les compléter pour une application réelle : les remplacer, en suivant la
+  procédure ci-dessous et `docs/INTEGRATION.md`.
+- Les fichiers concernés portent un bandeau « STYLES DE TEST » : `src/styles/tokens.css`,
+  `src/styles/global.css`, `src/styles/device.css`.
+- Le cadre d'iPhone (`device.css`, `DeviceFrame.astro`) est un outil de prévisualisation : il peut
+  rester, mais ses couleurs et tailles doivent suivre la maquette.
+
 Principe : le modèle fournit l'architecture (API, authentification, déploiement, logique).
 Chaque application reçoit sa **maquette** du designer, qui fournit l'apparence.
 

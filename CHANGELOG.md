@@ -4,6 +4,11 @@ Toutes les améliorations du modèle, de la plus récente à la plus ancienne.
 Format : date, puis ce qui a changé et pourquoi. Les reports dans les projets sont notés
 sous « Reporté dans ».
 
+## 2026-11-01 (styles de test)
+
+- Les styles du modèle sont déclarés provisoires : bandeau dans `tokens.css`, `global.css`, `device.css`.
+  Ils seront remplacés entièrement par la maquette de chaque application. Voir docs/DESIGN.md.
+
 ## 2026-11-01 (cadre d'iPhone sur ordinateur)
 
 - Sur ordinateur, chaque page s'affiche dans un cadre d'iPhone 393 × 852 avec encoche et indicateur d'accueil.
