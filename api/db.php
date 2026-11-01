@@ -32,6 +32,34 @@ function db_init_schema(PDO $pdo): void {
         );
     ");
 
+    // Réinitialisation du mot de passe : jeton à usage unique, empreinte seulement, valable 1 h
+    $pdo->exec("
+        CREATE TABLE IF NOT EXISTS password_resets (
+            id TEXT PRIMARY KEY,
+            user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+            expires_at INTEGER NOT NULL,
+            used_at INTEGER
+        );
+    ");
+
+    // Limitation des tentatives (anti-force brute)
+    $pdo->exec("
+        CREATE TABLE IF NOT EXISTS rate_limits (
+            k TEXT PRIMARY KEY,
+            hits INTEGER NOT NULL,
+            reset_at INTEGER NOT NULL
+        );
+    ");
+
+    // Journal des e-mails automatiques : sert à limiter à un e-mail par jour et par personne
+    $pdo->exec("
+        CREATE TABLE IF NOT EXISTS notifications_log (
+            user_id TEXT NOT NULL,
+            kind TEXT NOT NULL,
+            sent_at INTEGER NOT NULL
+        );
+    ");
+
     // Jetons « Rester connecté » : seule l'empreinte (sha256) du jeton est stockée
     try {
         $pdo->exec("

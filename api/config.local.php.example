@@ -1,3 +1,5 @@
 <?php
 // Copier ce fichier en api/config.local.php (jamais commité) et adapter.
 // define('DB_PATH', '/home/USER/var/mon-app/app.db');   // HORS public_html en production
+// define('APP_URL', 'https://mon-app.exemple.fr');
+// define('MAIL_FROM', 'Mon App <contact@mon-app.exemple.fr>');

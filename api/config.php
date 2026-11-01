@@ -15,6 +15,11 @@ if (!defined('DB_PATH')) {
     define('DB_PATH', __DIR__ . '/../data/app.db');
 }
 
+// Adresse publique de l'application (liens dans les e-mails) et expéditeur des e-mails.
+// À surcharger dans config.local.php.
+if (!defined('APP_URL')) define('APP_URL', 'http://localhost:8000');
+if (!defined('MAIL_FROM')) define('MAIL_FROM', 'Mon App <contact@exemple.fr>');
+
 // Origines autorisées en développement (Astro :4321 -> PHP :8000). Inutile en production (même origine).
 if (!defined('ALLOWED_DEV_ORIGINS')) {
     define('ALLOWED_DEV_ORIGINS', [

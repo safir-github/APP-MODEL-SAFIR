@@ -1,8 +1,14 @@
 <?php
 require __DIR__ . '/../bootstrap.php';
+require_once __DIR__ . '/../lib/rate_limit.php';
 
 if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
     fail('Méthode non autorisée', 405);
+}
+
+// Anti-force brute : 20 tentatives par 15 minutes et par adresse IP
+if (rate_limited('login:' . client_ip(), 20)) {
+    fail('Trop de tentatives. Réessayez dans quelques minutes.', 429);
 }
 
 $in = json_input();
@@ -14,6 +20,7 @@ $stmt->execute([$email]);
 $user = $stmt->fetch();
 
 if (!$user || !password_verify($password, $user['password_hash'])) {
+    record_attempt('login:' . client_ip());
     unauthorized('Email ou mot de passe incorrect.');
 }
 

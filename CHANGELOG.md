@@ -4,6 +4,19 @@ Toutes les améliorations du modèle, de la plus récente à la plus ancienne.
 Format : date, puis ce qui a changé et pourquoi. Les reports dans les projets sont notés
 sous « Reporté dans ».
 
+## 2026-11-01 (suite) : e-mails, tâches planifiées, sécurité des comptes
+
+- **Tâches planifiées** : `api/cron/run.php`, lancé en ligne de commande par cron (cPanel o2switch).
+  Refuse l'exécution par le web. Limite d'un e-mail par 24 h et par personne (`notifications_log`).
+  Pourquoi : les rappels de Muslim Kit passaient par une URL avec un jeton (exposé dans un fichier du dépôt).
+- **E-mails** : `api/lib/mail.php` (fonction `mail()` de l'hébergeur), `MAIL_FROM` et `APP_URL` configurables.
+- **Mot de passe oublié** : `api/auth/forgot.php` et `reset.php`, jeton à usage unique, valable 1 h,
+  seule son empreinte est stockée. Réponse identique que le compte existe ou non.
+  Repris de Sourcing App.
+- **Anti-force brute** : 20 tentatives de connexion par 15 min et par IP (`api/lib/rate_limit.php`).
+  Repris de Sourcing App.
+- Documentation : EMAIL.md, SCHEDULED_JOBS.md, PASSWORD_RESET.md.
+
 ## 2026-11-01
 
 ### Authentification : « Rester connecté » pendant 90 jours
