@@ -4,6 +4,19 @@ Toutes les améliorations du modèle, de la plus récente à la plus ancienne.
 Format : date, puis ce qui a changé et pourquoi. Les reports dans les projets sont notés
 sous « Reporté dans ».
 
+## 2026-11-01 (comptes, pages de mot de passe, tests)
+
+- **Changer le mot de passe** : `api/auth/change_password.php`. Mot de passe actuel demandé, limite d'essais,
+  et déconnexion des autres appareils (leurs jetons « Rester connecté » sont supprimés).
+  Pourquoi : fonction présente dans Muslim Kit et Playhouse Lab.
+- **Supprimer le compte** : `api/auth/delete_account.php`. Mot de passe demandé ; supprime jetons, journal des e-mails
+  et utilisateur. Pourquoi : fonction présente dans Muslim Kit et Talib Notes.
+- **Pages du front** : `/mot-de-passe-oublie` (lien depuis la connexion), `/reinitialiser?token=…` (manquante jusqu'ici),
+  `/compte` (changer le mot de passe, supprimer le compte ; lien « Mon compte » sur l'accueil).
+- **Tests automatiques** : `tests/run.php`, lancé par `npm test`. Serveur PHP sur base temporaire
+  (`APP_DB_PATH`), vrais appels HTTP, 29 contrôles (« Rester connecté » 90 jours compris). Voir `docs/TESTS.md`.
+- `api/config.php` : `DB_PATH` peut être donné par la variable d'environnement `APP_DB_PATH` (utilisé par les tests).
+
 ## 2026-11-01 (agent et maquettes)
 
 - `CLAUDE.md` à la racine : règles et carte du dépôt, lues automatiquement par Claude.

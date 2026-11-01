@@ -10,5 +10,5 @@ Flux (déjà dans le modèle : `api/auth/forgot.php`, `api/auth/reset.php`) :
 
 Points d'attention :
 - Limitation : 20 demandes par 15 minutes et par IP (`rate_limit.php`).
-- La page `/reinitialiser` n'est pas dans le modèle : elle reste à créer dans chaque application.
+- La page `/reinitialiser` (et `/mot-de-passe-oublie`) est dans le modèle : `src/pages/`. Une application peut la modifier, mais ne doit pas la supprimer.
 - Nécessite `send_mail()` opérationnel (voir EMAIL.md).

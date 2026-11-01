@@ -9,6 +9,12 @@
 - `me.php` renvoie `{ ok: false, user: null }` (HTTP 200) quand personne n'est connecté.
 - **Anti-force brute** : 20 tentatives de connexion échouées par 15 minutes et par IP (`rate_limit.php`).
 - **Mot de passe oublié** : voir PASSWORD_RESET.md.
+- **Changer le mot de passe** : `api/auth/change_password.php` (mot de passe actuel demandé, 8 caractères minimum).
+  Les jetons « Rester connecté » des autres appareils sont supprimés ; l'appareil courant reste connecté.
+- **Supprimer le compte** : `api/auth/delete_account.php` (mot de passe demandé). Supprime les jetons,
+  le journal des e-mails et l'utilisateur ; les tables liées avec `ON DELETE CASCADE` suivent.
+  **Pour chaque nouvelle table liée à `users`** : utiliser `ON DELETE CASCADE`, sinon l'ajouter à la liste de `delete_account.php`.
+- Pages du front : `/login`, `/register`, `/mot-de-passe-oublie`, `/reinitialiser?token=…`, `/compte`.
 
 ## Pourquoi un jeton en plus de la session
 Les sessions PHP peuvent être nettoyées par l'hébergeur avant leur durée de vie, et les applications
