@@ -68,15 +68,10 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* Barre d'onglets fixe, opaque et lisible dans les deux thèmes */
+/* Barre d'onglets : apparence (provisoire). La position fixe en bas est dans src/components/TabBar.astro */
 .tabbar {
-  position: fixed;
-  left: 12px;
-  right: 12px;
-  bottom: calc(22px + env(safe-area-inset-bottom, 0px));
-  z-index: 50;
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(var(--tab-count, 5), 1fr);
   padding: 6px;
   height: 68px;
   border-radius: 34px;
