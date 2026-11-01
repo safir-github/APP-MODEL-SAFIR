@@ -165,6 +165,31 @@ try {
     $r = request($a, 'GET', '/api/auth/me.php');
     check('nom : renvoyé par le profil', ($r['json']['user']['name'] ?? '') === 'Alice Test');
 
+    // --- Changement d'adresse e-mail (confirmation par lien) ---
+    $r = request($a, 'POST', '/api/auth/request_email_change.php', ['password' => 'faux-mdp', 'email' => 'alice2@test.local']);
+    check('e-mail : mot de passe faux refusé (403)', $r['status'] === 403);
+    $r = request($a, 'POST', '/api/auth/request_email_change.php', ['password' => 'reinit-mdp-3', 'email' => 'pas-une-adresse']);
+    check('e-mail : adresse invalide refusée (400)', $r['status'] === 400);
+    $tmp = [];
+    request($tmp, 'POST', '/api/auth/register.php', ['email' => 'carol@test.local', 'password' => 'motdepasse-carol']);
+    $r = request($a, 'POST', '/api/auth/request_email_change.php', ['password' => 'reinit-mdp-3', 'email' => 'carol@test.local']);
+    check('e-mail : adresse déjà prise refusée (409)', $r['status'] === 409);
+    $r = request($a, 'POST', '/api/auth/request_email_change.php', ['password' => 'reinit-mdp-3', 'email' => 'alice2@test.local']);
+    check('e-mail : demande acceptée (200)', $r['status'] === 200 && ($r['json']['ok'] ?? false) === true);
+    $r = request($a, 'GET', '/api/auth/me.php');
+    check('e-mail : l\'adresse n\'a pas changé avant confirmation', ($r['json']['user']['email'] ?? '') === 'alice@test.local');
+
+    $known2 = 'confirm-test-' . bin2hex(random_bytes(8));
+    $db->prepare('UPDATE email_changes SET token_hash = ? WHERE user_id = ?')->execute([hash('sha256', $known2), $uid]);
+    $r = request($a, 'POST', '/api/auth/confirm_email.php', ['token' => 'mauvais-lien']);
+    check('e-mail : lien faux refusé (400)', $r['status'] === 400);
+    $r = request($a, 'POST', '/api/auth/confirm_email.php', ['token' => $known2]);
+    check('e-mail : lien confirmé (200)', $r['status'] === 200 && ($r['json']['email'] ?? '') === 'alice2@test.local');
+    $r = request($a, 'POST', '/api/auth/confirm_email.php', ['token' => $known2]);
+    check('e-mail : lien utilisable une seule fois', $r['status'] === 400);
+    $r = request($f, 'POST', '/api/auth/login.php', ['email' => 'alice2@test.local', 'password' => 'reinit-mdp-3']);
+    check('e-mail : connexion avec la nouvelle adresse', $r['status'] === 200);
+
     // --- Déconnexion ---
     $r = request($a, 'POST', '/api/auth/logout.php');
     check('déconnexion : 200', $r['status'] === 200);
