@@ -1,0 +1,29 @@
+---
+import AuthLayout from '../layouts/AuthLayout.astro';
+---
+<AuthLayout title="Confirmer l'adresse">
+  <h1 class="font-serif text-3xl font-semibold mb-6" style="font-family: var(--serif)">Confirmer l'adresse</h1>
+  <div id="error-msg" hidden class="mb-4 rounded-xl px-4 py-3 text-sm" style="color: var(--neg)"></div>
+  <div id="done-msg" hidden class="mb-4 rounded-xl px-4 py-3 text-sm" style="color: var(--text-2)">
+    Votre nouvelle adresse est confirmée. <a href="/compte" style="color: var(--copper)">Retour à mon compte</a>
+  </div>
+</AuthLayout>
+
+<script>
+  import { api } from '../scripts/api';
+
+  const errorEl = document.getElementById('error-msg') as HTMLElement;
+  const doneEl = document.getElementById('done-msg') as HTMLElement;
+
+  (async () => {
+    // Le jeton vient du lien reçu par e-mail (paramètre ?token=)
+    const token = new URLSearchParams(window.location.search).get('token') || '';
+    const { ok, data } = await api.confirmEmail(token);
+    if (!ok) {
+      errorEl.textContent = data?.error || 'Ce lien de confirmation est invalide ou a expiré.';
+      errorEl.hidden = false;
+      return;
+    }
+    doneEl.hidden = false;
+  })();
+</script>
