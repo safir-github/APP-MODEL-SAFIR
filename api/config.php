@@ -11,8 +11,9 @@ if (is_file(__DIR__ . '/config.local.php')) {
 }
 
 // Base SQLite. En production : chemin ABSOLU hors public_html, dans config.local.php.
+// APP_DB_PATH (variable d'environnement) sert aux tests (tests/run.php) : base temporaire.
 if (!defined('DB_PATH')) {
-    define('DB_PATH', __DIR__ . '/../data/app.db');
+    define('DB_PATH', getenv('APP_DB_PATH') ?: __DIR__ . '/../data/app.db');
 }
 
 // Adresse publique de l'application (liens dans les e-mails) et expéditeur des e-mails.
