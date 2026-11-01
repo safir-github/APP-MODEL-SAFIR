@@ -13,6 +13,10 @@ interfaces fonctionnent et s'affichent correctement dans le modèle.
   (sauf le bloc du cadre) et `src/styles/global.css`.
 
 ## Ce qui est FIXE (ne se remplace jamais)
+- **Les icônes des pages d'authentification** (`src/components/AuthTools.astro`, `src/scripts/auth-tools.ts`) :
+  recharger, partager l'application, copier le lien de la page, changer de thème, et l'icône
+  « afficher / masquer le mot de passe ». Leur présence et leur fonction sont un concept commun à
+  toutes les applications. Seul leur **style** (forme, couleur, taille, emplacement fin) suit la maquette.
 - **Le cadre d'iPhone sur ordinateur** : `src/styles/device.css`, `src/components/DeviceFrame.astro`,
   et le bloc « CADRE D'IPHONE » de `tokens.css`. Il reproduit automatiquement l'affichage mobile de
   l'application sur PC, avec encoche, sans second affichage ni style propre. La maquette ne doit pas le modifier.

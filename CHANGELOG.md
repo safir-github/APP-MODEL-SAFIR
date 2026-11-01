@@ -8,6 +8,7 @@ sous « Reporté dans ».
 
 - Les styles du modèle sont déclarés provisoires : bandeau dans `tokens.css`, `global.css`, `device.css`.
   Ils seront remplacés entièrement par la maquette de chaque application. Voir docs/DESIGN.md.
+- Les icônes des pages d'authentification (recharger, partager, copier le lien, thème, œil) sont **fixes** : seul leur style change selon la maquette.
 - Le cadre d'iPhone sur ordinateur est **fixe** : il n'est pas provisoire et n'est jamais remplacé par la maquette.
 
 ## 2026-11-01 (cadre d'iPhone sur ordinateur)
