@@ -1,3 +1,9 @@
+/*
+ * STYLES DE TEST DU MODÈLE — PROVISOIRES.
+ * Ces couleurs, polices et tailles servent uniquement à tester l'affichage des interfaces du modèle.
+ * Ils seront remplacés entièrement par les styles de la maquette fournie au début du projet
+ * (voir docs/DESIGN.md et docs/INTEGRATION.md). Ne pas les considérer comme définitifs.
+ */
 /* Tokens de design communs — thème sombre par défaut, clair via <html data-theme="light"> */
 :root {
   --serif: 'Source Serif 4', Georgia, 'Times New Roman', serif;

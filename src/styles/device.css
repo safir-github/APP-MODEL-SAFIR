@@ -1,4 +1,10 @@
 /*
+ * STYLES DE TEST DU MODÈLE — PROVISOIRES.
+ * Ces couleurs, polices et tailles servent uniquement à tester l'affichage des interfaces du modèle.
+ * Ils seront remplacés entièrement par les styles de la maquette fournie au début du projet
+ * (voir docs/DESIGN.md et docs/INTEGRATION.md). Ne pas les considérer comme définitifs.
+ */
+/*
  * Cadre d'iPhone sur ordinateur.
  *
  * Principe : le contenu est le même DOM, avec les mêmes styles, sur mobile et sur PC.
