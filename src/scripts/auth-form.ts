@@ -60,60 +60,6 @@ function init() {
       show('spinner', false);
     }
   });
-
-  // Bascule Afficher / Masquer le mot de passe
-  const pwdInput = document.getElementById('password-input') as HTMLInputElement | null;
-  const togglePwdBtn = document.getElementById('btn-toggle-password');
-  const eyeOpen = document.getElementById('icon-eye-open');
-  const eyeClosed = document.getElementById('icon-eye-closed');
-
-  if (togglePwdBtn && pwdInput) {
-    togglePwdBtn.addEventListener('click', () => {
-      const isPassword = pwdInput.type === 'password';
-      pwdInput.type = isPassword ? 'text' : 'password';
-      if (eyeOpen && eyeClosed) {
-        eyeOpen.classList.toggle('hidden', !isPassword);
-        eyeClosed.classList.toggle('hidden', isPassword);
-      }
-    });
-  }
-
-  // Bouton Recharger l'application
-  const reloadBtn = document.getElementById('btn-login-reload');
-  if (reloadBtn) {
-    reloadBtn.addEventListener('click', () => {
-      window.location.reload();
-    });
-  }
-
-  // Bouton Partager l'application (Web Share API avec fallback presse-papier)
-  const shareBtn = document.getElementById('btn-login-share');
-  if (shareBtn) {
-    shareBtn.addEventListener('click', async () => {
-      const shareData = {
-        title: 'Ma Compta IA',
-        text: 'Gérez facilement votre comptabilité personnelle avec Ma Compta IA.',
-        url: window.location.origin,
-      };
-
-      if (navigator.share && navigator.canShare && navigator.canShare(shareData)) {
-        try {
-          await navigator.share(shareData);
-        } catch (err: any) {
-          if (err.name !== 'AbortError') {
-            console.error('Erreur partage:', err);
-          }
-        }
-      } else {
-        try {
-          await navigator.clipboard.writeText(window.location.origin);
-          alert('Lien de l\'application copié dans le presse-papier !');
-        } catch {
-          prompt('Copiez le lien de l\'application :', window.location.origin);
-        }
-      }
-    });
-  }
 }
 
 if (document.readyState === 'loading') {
