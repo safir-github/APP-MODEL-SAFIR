@@ -157,6 +157,14 @@ try {
     $r = request($h, 'POST', '/api/auth/login.php', ['email' => 'bob@test.local', 'password' => 'motdepasse-bob']);
     check('compte supprimé : connexion refusée', $r['status'] === 401);
 
+    // --- Nom ---
+    $r = request($a, 'POST', '/api/auth/update_profile.php', ['name' => str_repeat('x', 101)]);
+    check('nom : plus de 100 caractères refusé (400)', $r['status'] === 400);
+    $r = request($a, 'POST', '/api/auth/update_profile.php', ['name' => 'Alice Test']);
+    check('nom : enregistré (200)', $r['status'] === 200 && ($r['json']['user']['name'] ?? '') === 'Alice Test');
+    $r = request($a, 'GET', '/api/auth/me.php');
+    check('nom : renvoyé par le profil', ($r['json']['user']['name'] ?? '') === 'Alice Test');
+
     // --- Déconnexion ---
     $r = request($a, 'POST', '/api/auth/logout.php');
     check('déconnexion : 200', $r['status'] === 200);
