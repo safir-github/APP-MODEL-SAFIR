@@ -25,6 +25,14 @@
   --tab-text: rgba(244, 239, 231, 0.72);
   --tab-border: rgba(255, 255, 255, 0.2);
   --tab-shadow: 0 14px 34px -10px rgba(0, 0, 0, 0.75);
+  /* Cadre d'iPhone sur ordinateur (voir src/styles/device.css) */
+  --device-ratio: 393 / 852;
+  --device-bezel: 14px;
+  --device-radius: 58px;
+  --device-screen-radius: 46px;
+  --device-body: #1b1e23;
+  --device-stage: #07090c;
+  --device-home: rgba(255, 255, 255, 0.85);
 }
 
 html[data-theme="light"] {

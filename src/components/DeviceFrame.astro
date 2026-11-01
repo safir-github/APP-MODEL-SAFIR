@@ -1,0 +1,16 @@
+---
+// Enveloppe de chaque page : sur mobile, elle ne change rien ; sur ordinateur, elle affiche
+// le contenu dans un cadre d'iPhone avec encoche (voir src/styles/device.css).
+// Le contenu est toujours le même : il n'y a pas de second affichage.
+// center : centre le contenu verticalement (pages d'authentification).
+const { center = false } = Astro.props;
+---
+<div class="device-stage">
+  <div class="device-frame">
+    <div class:list={['device-screen', { 'device-screen--center': center }]}>
+      <slot />
+    </div>
+    <span class="device-notch" aria-hidden="true"></span>
+    <span class="device-home" aria-hidden="true"></span>
+  </div>
+</div>
