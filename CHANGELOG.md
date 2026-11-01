@@ -4,6 +4,14 @@ Toutes les améliorations du modèle, de la plus récente à la plus ancienne.
 Format : date, puis ce qui a changé et pourquoi. Les reports dans les projets sont notés
 sous « Reporté dans ».
 
+## 2026-11-01 (nom et adresse e-mail)
+
+- **Nom** : colonne `users.name` (ALTER TABLE), `api/auth/update_profile.php`. Pourquoi : présent dans Muslim Kit.
+- **Changer l'adresse e-mail** : `request_email_change.php` et `confirm_email.php`, table `email_changes`.
+  Le lien de confirmation part vers la nouvelle adresse, pour éviter une prise de compte. Présent dans Muslim Kit (sans confirmation).
+- **Pages** : `/compte` (nom, e-mail) et `/confirmer-email?token=…`.
+- Tests : 41 contrôles (`npm test`).
+
 ## 2026-11-01 (comptes, pages de mot de passe, tests)
 
 - **Changer le mot de passe** : `api/auth/change_password.php`. Mot de passe actuel demandé, limite d'essais,

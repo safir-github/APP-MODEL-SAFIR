@@ -14,7 +14,10 @@
 - **Supprimer le compte** : `api/auth/delete_account.php` (mot de passe demandé). Supprime les jetons,
   le journal des e-mails et l'utilisateur ; les tables liées avec `ON DELETE CASCADE` suivent.
   **Pour chaque nouvelle table liée à `users`** : utiliser `ON DELETE CASCADE`, sinon l'ajouter à la liste de `delete_account.php`.
-- Pages du front : `/login`, `/register`, `/mot-de-passe-oublie`, `/reinitialiser?token=…`, `/compte`.
+- **Nom** : `api/auth/update_profile.php` (100 caractères au plus, sans mot de passe).
+- **Changer l'adresse e-mail** : `api/auth/request_email_change.php` (mot de passe demandé) envoie un lien à la **nouvelle** adresse ;
+  `api/auth/confirm_email.php` applique le changement. Lien valable 1 h, usage unique, une demande en attente à la fois.
+- Pages du front : `/login`, `/register`, `/mot-de-passe-oublie`, `/reinitialiser?token=…`, `/compte`, `/confirmer-email?token=…`.
 
 ## Pourquoi un jeton en plus de la session
 Les sessions PHP peuvent être nettoyées par l'hébergeur avant leur durée de vie, et les applications
