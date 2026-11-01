@@ -4,6 +4,15 @@ Toutes les améliorations du modèle, de la plus récente à la plus ancienne.
 Format : date, puis ce qui a changé et pourquoi. Les reports dans les projets sont notés
 sous « Reporté dans ».
 
+## 2026-11-01 (socle front)
+
+- Socle front : `package.json`, configuration Astro (sortie statique), TypeScript, Tailwind v4.
+- Mises en page `AppLayout` et `AuthLayout` (thème initialisé avant le rendu).
+- Pages : connexion, inscription, accueil avec garde d'authentification et déconnexion.
+- Client d'API `src/scripts/api.ts` (session et cookie « Rester connecté » inclus).
+- `docs/DESIGN.md` : contrat des maquettes (tokens, thèmes, contraste, composants) et procédure d'intégration.
+- Correction : `me.php` ne dépend plus de la table `transactions` (propre à une application).
+
 ## 2026-11-01 (suite) : e-mails, tâches planifiées, sécurité des comptes
 
 - **Tâches planifiées** : `api/cron/run.php`, lancé en ligne de commande par cron (cPanel o2switch).

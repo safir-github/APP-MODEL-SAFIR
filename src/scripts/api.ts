@@ -1,0 +1,32 @@
+// Client d'API : toutes les requêtes vers /api/*.php, avec la session et le cookie « Rester connecté ».
+const API_BASE = '';
+
+export type ApiResult = { ok: boolean; status: number; data: any };
+
+async function request(path: string, opts: RequestInit = {}): Promise<ApiResult> {
+  const res = await fetch(`${API_BASE}${path}`, {
+    credentials: 'include',
+    ...opts,
+    headers: { 'Content-Type': 'application/json', ...(opts.headers || {}) },
+  });
+  let data: any = null;
+  try {
+    data = await res.json();
+  } catch {
+    data = null;
+  }
+  return { ok: res.ok, status: res.status, data };
+}
+
+export const api = {
+  me: () => request('/api/auth/me.php'),
+  login: (email: string, password: string) =>
+    request('/api/auth/login.php', { method: 'POST', body: JSON.stringify({ email, password }) }),
+  register: (email: string, password: string) =>
+    request('/api/auth/register.php', { method: 'POST', body: JSON.stringify({ email, password }) }),
+  logout: () => request('/api/auth/logout.php', { method: 'POST' }),
+  forgot: (email: string) =>
+    request('/api/auth/forgot.php', { method: 'POST', body: JSON.stringify({ email }) }),
+  reset: (token: string, password: string) =>
+    request('/api/auth/reset.php', { method: 'POST', body: JSON.stringify({ token, password }) }),
+};

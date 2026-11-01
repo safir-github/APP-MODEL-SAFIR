@@ -1,0 +1,33 @@
+---
+import AppLayout from '../layouts/AppLayout.astro';
+---
+<AppLayout title="Accueil">
+  <div id="auth-gate" class="text-sm" style="color: var(--text-2)">Chargement…</div>
+  <div id="app-root" hidden>
+    <h1 class="font-serif text-3xl font-semibold mb-2" style="font-family: var(--serif)">Bonjour</h1>
+    <p id="user-email" class="text-sm mb-8" style="color: var(--text-2)"></p>
+    <button id="btn-logout" type="button" class="h-12 px-6 rounded-3xl border" style="border-color: var(--line-2)">Se déconnecter</button>
+  </div>
+</AppLayout>
+
+<script>
+  import { api } from '../scripts/api';
+
+  // Garde d'authentification : sans utilisateur, retour à la connexion
+  (async () => {
+    const { data } = await api.me();
+    if (!data?.user) {
+      window.location.replace('/login?from=' + encodeURIComponent(window.location.pathname));
+      return;
+    }
+    document.getElementById('auth-gate')?.setAttribute('hidden', '');
+    document.getElementById('app-root')?.removeAttribute('hidden');
+    const emailEl = document.getElementById('user-email');
+    if (emailEl) emailEl.textContent = data.user.email;
+  })();
+
+  document.getElementById('btn-logout')?.addEventListener('click', async () => {
+    await api.logout();
+    window.location.replace('/login');
+  });
+</script>

@@ -21,7 +21,9 @@ authentification « rester connecté », déploiement FTP, thème clair/sombre, 
 - `src/scripts/theme.ts` : bascule du thème, mémorisée.
 - `deploy.py` : envoi FTP de `dist/` et `api/`, identifiants lus dans l'environnement.
 - `dev-router.php` : serveur PHP de développement.
-- `docs/` : architecture, authentification, déploiement, interface, e-mails.
+- `src/` : socle front (mises en page, pages de connexion, inscription, accueil, client d'API).
+- `api/cron/` et `api/lib/jobs.php` : tâches planifiées en ligne de commande.
+- `docs/` : architecture, authentification, déploiement, interface, e-mails, tâches planifiées, mot de passe oublié, maquettes (DESIGN.md).
 
 ## Historique
 Toutes les améliorations sont notées dans [CHANGELOG.md](CHANGELOG.md). Quand une amélioration
