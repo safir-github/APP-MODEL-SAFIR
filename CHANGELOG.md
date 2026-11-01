@@ -4,6 +4,12 @@ Toutes les améliorations du modèle, de la plus récente à la plus ancienne.
 Format : date, puis ce qui a changé et pourquoi. Les reports dans les projets sont notés
 sous « Reporté dans ».
 
+## 2026-11-01 (icônes des pages d'authentification)
+
+- Barre d'icônes sur connexion, inscription et réinitialisation : recharger, partager l'application,
+  copier le lien de la page (lien direct vers connexion ou inscription), thème clair / sombre.
+- Icône œil pour afficher / masquer le mot de passe. Pourquoi : demande de l'utilisateur, repris de Ma Compta IA.
+
 ## 2026-11-01 (nom et adresse e-mail)
 
 - **Nom** : colonne `users.name` (ALTER TABLE), `api/auth/update_profile.php`. Pourquoi : présent dans Muslim Kit.
