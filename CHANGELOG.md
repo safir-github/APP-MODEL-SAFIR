@@ -4,6 +4,12 @@ Toutes les améliorations du modèle, de la plus récente à la plus ancienne.
 Format : date, puis ce qui a changé et pourquoi. Les reports dans les projets sont notés
 sous « Reporté dans ».
 
+## 2026-11-01 (barre d'onglets fixe)
+
+- Barre d'onglets `src/components/TabBar.astro`, fixe en bas sur mobile et dans le cadre d'iPhone.
+  Le contenu défile dans `.device-scroll`, la barre est hors de cette zone (slot `tabs`) : elle ne défile pas.
+  La position est fixe ; l'apparence reste provisoire. Voir docs/UI.md.
+
 ## 2026-11-01 (styles de test)
 
 - Les styles du modèle sont déclarés provisoires : bandeau dans `tokens.css`, `global.css`, `device.css`.

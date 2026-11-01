@@ -30,3 +30,13 @@
 - Les éléments `position: fixed` (barre d'onglets, notification) doivent être **dans** le slot des layouts,
   jamais ajoutés directement à `<body>` : sinon ils se placeraient par rapport à la fenêtre et non au cadre.
 - Ne pas mettre de `transform` sur `.device-stage`, `.device-frame` ou `.device-screen` (ni sur leurs parents).
+
+## Barre d'onglets (fixe)
+- La barre est `src/components/TabBar.astro`. Elle est toujours en bas de l'écran, fixe, sur mobile comme
+  dans le cadre d'iPhone sur ordinateur. Sa **position** est un concept fixe ; son **apparence** (couleurs,
+  formes, taille des libellés) vient de la maquette.
+- Le contenu défile dans `.device-scroll`. La barre est placée dans le slot `tabs` du `DeviceFrame`, hors de
+  cette zone : elle ne défile pas avec le contenu.
+- Chaque layout qui affiche la barre la passe par le slot `tabs` (voir `AppLayout.astro`). Ne pas la placer
+  dans le contenu de la page.
+- Pas de `transform`, `filter` ni `animation` sur les conteneurs qui contiennent la barre (règle 7 de CLAUDE.md).

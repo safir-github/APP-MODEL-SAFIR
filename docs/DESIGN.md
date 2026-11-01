@@ -13,6 +13,7 @@ interfaces fonctionnent et s'affichent correctement dans le modèle.
   (sauf le bloc du cadre) et `src/styles/global.css`.
 
 ## Ce qui est FIXE (ne se remplace jamais)
+- **La barre d'onglets, en bas** (`src/components/TabBar.astro`) : sa position fixe en bas, sur mobile et dans le cadre. Son apparence seule suit la maquette.
 - **Les icônes des pages d'authentification** (`src/components/AuthTools.astro`, `src/scripts/auth-tools.ts`) :
   recharger, partager l'application, copier le lien de la page, changer de thème, et l'icône
   « afficher / masquer le mot de passe ». Leur présence et leur fonction sont un concept commun à
