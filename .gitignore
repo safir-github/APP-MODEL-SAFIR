@@ -1,0 +1,14 @@
+node_modules/
+dist/
+.astro/
+data/
+*.db
+*.db-shm
+*.db-wal
+api/config.local.php
+.env
+.env.deploy
+.env.production
+.env.local
+.DS_Store
+notes.md

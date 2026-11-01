@@ -1,0 +1,129 @@
+/* Tokens de design communs — thème sombre par défaut, clair via <html data-theme="light"> */
+:root {
+  --serif: 'Source Serif 4', Georgia, 'Times New Roman', serif;
+  --sans: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif;
+  --r-sm: 14px;
+  --r-md: 20px;
+  --r-lg: 28px;
+  --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --copper: #d0916f;
+  --sage: #7e9a6e;
+  --red: #d0563f;
+  --bg: #0e1318;
+  --surface: rgba(255, 255, 255, 0.055);
+  --surface-2: rgba(255, 255, 255, 0.09);
+  --line: rgba(255, 255, 255, 0.08);
+  --line-2: rgba(255, 255, 255, 0.14);
+  --text: #f4efe7;
+  --text-2: rgba(244, 239, 231, 0.66);
+  --text-3: rgba(244, 239, 231, 0.42);
+  --neg: #ec7a62;
+  --pos: #9cbc8a;
+  --on-accent: #1a120d;
+  --shadow: 0 20px 40px -20px rgba(0, 0, 0, 0.7);
+  --tab-bg: rgba(40, 50, 62, 0.96);
+  --tab-text: rgba(244, 239, 231, 0.72);
+  --tab-border: rgba(255, 255, 255, 0.2);
+  --tab-shadow: 0 14px 34px -10px rgba(0, 0, 0, 0.75);
+}
+
+html[data-theme="light"] {
+  --bg: #f6f3ec;
+  --surface: #ffffff;
+  --surface-2: #f3eee5;
+  --line: rgba(30, 25, 20, 0.08);
+  --line-2: rgba(30, 25, 20, 0.14);
+  --text: #1b1a17;
+  --text-2: rgba(27, 26, 23, 0.66);
+  --text-3: rgba(27, 26, 23, 0.42);
+  --neg: #b7402c;
+  --pos: #4f6b43;
+  --on-accent: #ffffff;
+  --shadow: 0 18px 40px -22px rgba(60, 40, 20, 0.35);
+  --tab-bg: rgba(255, 255, 255, 0.96);
+  --tab-text: rgba(27, 26, 23, 0.62);
+  --tab-border: rgba(30, 25, 20, 0.12);
+  --tab-shadow: 0 12px 30px -12px rgba(60, 40, 20, 0.28);
+}
+
+body {
+  font-family: var(--sans);
+  background: var(--bg);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Barre d'onglets fixe, opaque et lisible dans les deux thèmes */
+.tabbar {
+  position: fixed;
+  left: 12px;
+  right: 12px;
+  bottom: calc(22px + env(safe-area-inset-bottom, 0px));
+  z-index: 50;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  padding: 6px;
+  height: 68px;
+  border-radius: 34px;
+  background: var(--tab-bg);
+  border: 1px solid var(--tab-border);
+  box-shadow: var(--tab-shadow);
+  -webkit-backdrop-filter: blur(20px) saturate(150%);
+  backdrop-filter: blur(20px) saturate(150%);
+  clip-path: inset(0% 0% 0% 0% round 34px);
+  transition: clip-path 0.6s cubic-bezier(0.34, 1.25, 0.5, 1), opacity 0.35s ease;
+}
+/* Repli en rond (pendant un changement d'onglet) : seul le rond reste visible */
+.tabbar.is-away {
+  clip-path: inset(44% 46% 44% 46% round 50%);
+  opacity: 0.9;
+  pointer-events: none;
+}
+.tabbar.is-away > * { opacity: 0; transition: opacity 0.08s ease; }
+.tabbar:not(.is-away) > * { transition: opacity 0.25s ease 0.28s; }
+.tab {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  border-radius: 28px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--tab-text);
+}
+.tab.on {
+  color: #c07a58;
+  background: color-mix(in oklab, #d0916f 16%, transparent);
+}
+html[data-theme="light"] .tab.on { color: #a8643f; }
+
+/* Notification centrée, disparaît seule */
+.toast {
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  width: min(300px, 84%);
+  z-index: 70;
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(-50%, -50%) scale(0.94);
+  transition: opacity 0.22s ease, transform 0.28s var(--ease);
+}
+.toast.is-on { opacity: 1; pointer-events: auto; transform: translate(-50%, -50%) scale(1); }
+.toast-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 22px 20px 20px;
+  border-radius: 26px;
+  text-align: center;
+  background: var(--tab-bg);
+  border: 1px solid var(--tab-border);
+  box-shadow: var(--shadow);
+  color: var(--text);
+}
+
+/* Ouverture / fermeture d'un bloc : slide-in via la hauteur (voir docs/UI.md) */
+[hidden] { display: none !important; }
