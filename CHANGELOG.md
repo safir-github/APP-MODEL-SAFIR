@@ -4,6 +4,11 @@ Toutes les améliorations du modèle, de la plus récente à la plus ancienne.
 Format : date, puis ce qui a changé et pourquoi. Les reports dans les projets sont notés
 sous « Reporté dans ».
 
+## 2026-11-01 (procédure de nouveau projet)
+
+- `docs/NOUVEAU_PROJET.md` : clonage de `main`, suppression du `.git` du modèle, premier commit de l'application,
+  dépôt propre, maquette, règles à respecter. Pourquoi : que chaque agent démarre de la même façon, sans mélanger les historiques.
+
 ## 2026-11-01 (barre d'onglets fixe)
 
 - Barre d'onglets `src/components/TabBar.astro`, fixe en bas sur mobile et dans le cadre d'iPhone.
