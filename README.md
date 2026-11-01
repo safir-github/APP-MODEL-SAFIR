@@ -23,6 +23,8 @@ authentification « rester connecté », déploiement FTP, thème clair/sombre, 
 - `dev-router.php` : serveur PHP de développement.
 - `src/` : socle front (mises en page, pages de connexion, inscription, accueil, client d'API).
 - `api/cron/` et `api/lib/jobs.php` : tâches planifiées en ligne de commande.
+- `CLAUDE.md` : instructions pour l'agent (lu automatiquement).
+- `design/` : maquettes HTML des concepts (voir design/README.md).
 - `docs/` : architecture, authentification, déploiement, interface, e-mails, tâches planifiées, mot de passe oublié, maquettes (DESIGN.md).
 
 ## Historique
