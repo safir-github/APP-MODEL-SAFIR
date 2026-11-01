@@ -71,4 +71,19 @@ function db_init_schema(PDO $pdo): void {
             );
         ");
     } catch (Throwable $e) {}
+
+    // Nom affiché (modifiable depuis « Mon compte »)
+    try {
+        $pdo->exec("ALTER TABLE users ADD COLUMN name TEXT NOT NULL DEFAULT ''");
+    } catch (Throwable $e) {}
+
+    // Changement d'adresse e-mail en attente : seule l'empreinte du lien de confirmation est stockée
+    $pdo->exec("
+        CREATE TABLE IF NOT EXISTS email_changes (
+            token_hash TEXT PRIMARY KEY,
+            user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+            new_email TEXT NOT NULL,
+            expires_at INTEGER NOT NULL
+        );
+    ");
 }
