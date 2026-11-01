@@ -1,5 +1,6 @@
 ---
 import '../styles/global.css';
+import AuthTools from '../components/AuthTools.astro';
 const { title = 'Connexion' } = Astro.props;
 ---
 <!doctype html>
@@ -15,8 +16,12 @@ const { title = 'Connexion' } = Astro.props;
     </script>
   </head>
   <body class="min-h-screen flex items-center justify-center p-6">
+    <AuthTools />
     <main class="w-full max-w-sm">
       <slot />
     </main>
+    <script>
+      import '../scripts/auth-tools.ts';
+    </script>
   </body>
 </html>
