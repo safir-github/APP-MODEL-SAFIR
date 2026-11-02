@@ -21,8 +21,7 @@ Table `events` : `user_id` (vide pour un visiteur non connecté), `type`, `path`
 - Refuser n'a aucune conséquence sur l'usage de l'application.
 
 ## Conservation
-La tâche planifiée (`api/cron/run.php`) supprime les événements de plus de 90 jours (`job_purge_events`).
-Le journal des accès administrateur suit la même logique à mettre en place si la durée doit être limitée.
+La tâche planifiée (`api/cron/run.php`) supprime les événements et le journal des accès administrateur de plus de 90 jours (`job_purge_events`).
 
 ## Tableau de bord
 - `api/admin/overview.php` : chiffres agrégés (comptes, inscriptions, comptes actifs, visites, appareils, pages les plus vues, 14 derniers jours).

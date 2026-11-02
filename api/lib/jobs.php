@@ -38,5 +38,9 @@ function job_daily_reminders(): array {
 function job_purge_events(): array {
     $stmt = db()->prepare('DELETE FROM events WHERE created_at < ?');
     $stmt->execute([time() - 90 * 86400]);
-    return ['deleted' => $stmt->rowCount()];
+    $events = $stmt->rowCount();
+    // Même durée pour le journal des accès administrateur (voir docs/ANALYTICS.md)
+    $stmt = db()->prepare('DELETE FROM admin_log WHERE created_at < ?');
+    $stmt->execute([time() - 90 * 86400]);
+    return ['deleted' => $events, 'admin_log_deleted' => $stmt->rowCount()];
 }
