@@ -4,6 +4,13 @@ Toutes les améliorations du modèle, de la plus récente à la plus ancienne.
 Format : date, puis ce qui a changé et pourquoi. Les reports dans les projets sont notés
 sous « Reporté dans ».
 
+## 2026-11-02 (tableau de bord repensé, branche 1.4)
+
+- Cartes de chiffres clés avec variation par rapport à la semaine précédente, courbe des 14 derniers jours.
+- Changement de catégorie par une feuille de confirmation (avec le nom du compte), tracé dans admin_log.
+- Fiche et journal présentés en phrases simples. Marges et styles repris de Ma Compta IA (provisoires).
+- Tests : 97 contrôles.
+
 ## 2026-11-02 (classification des comptes, branche 1.4)
 
 - Colonne `users.account_kind` (reel, test, agent, interne ; défaut reel), route admin `account_kind.php` tracée dans `admin_log`.

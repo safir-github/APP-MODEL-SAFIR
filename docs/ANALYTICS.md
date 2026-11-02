@@ -60,3 +60,9 @@ Toute nouvelle donnée collectée (nouvel événement, nouveau champ, nouveau se
   état lisible (« Actif », « Inactif depuis N jours », « Jamais connecté »), actions par type, pages et appareils sur 90 jours,
   chronologie des 50 derniers événements.
 - Un compte sans page vue affiche une note explicite. Aucune adresse IP. Chaque consultation est tracée dans `admin_log`.
+
+## Présentation du tableau de bord
+- Chiffres clés : comptes réels, actifs sur 7 jours, inscriptions et visites sur 7 jours, chacun avec sa variation par rapport à la semaine précédente (`previous7`).
+- Courbe des 14 derniers jours (visites et inscriptions, jours sans donnée à zéro).
+- Fiche et journal en phrases : aucun identifiant ni nom d'événement brut n'est affiché.
+- Styles provisoires (`.d-*` dans `src/styles/global.css`), repris de Ma Compta IA ; le designer les remplacera.
