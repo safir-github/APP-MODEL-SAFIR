@@ -1,0 +1,48 @@
+---
+import AppLayout from '../layouts/AppLayout.astro';
+import { LEGAL } from '../legal';
+---
+<AppLayout title="Politique de confidentialité">
+  <a href="/" class="text-sm" style="color: var(--copper)">← Retour</a>
+  <h1 class="font-serif text-3xl font-semibold mt-4 mb-2" style="font-family: var(--serif)">Politique de confidentialité</h1>
+  {LEGAL.draft && (
+    <p class="text-sm mb-6" style="color: var(--neg)">Version de travail, à relire et valider avant diffusion.</p>
+  )}
+  <p class="text-sm mb-6" style="color: var(--text-2)">Dernière mise à jour : {LEGAL.lastUpdate}</p>
+
+  <h2 class="font-semibold mt-6 mb-2">Responsable du traitement</h2>
+  <p class="text-sm mb-4">L’application est éditée par {LEGAL.editor}. Contact : {LEGAL.contactEmail}.</p>
+
+  <h2 class="font-semibold mt-6 mb-2">Données collectées</h2>
+  <ul class="text-sm mb-4 list-disc pl-5 space-y-1">
+    <li>Adresse e-mail et mot de passe (stocké sous forme hachée, jamais en clair).</li>
+    <li>Nom, si vous le renseignez.</li>
+    <li>Les informations que vous saisissez dans l’application.</li>
+    <li>Les préférences d’affichage (thème), conservées dans votre navigateur.</li>
+  </ul>
+
+  <h2 class="font-semibold mt-6 mb-2">Cookies</h2>
+  <p class="text-sm mb-4">L’application utilise uniquement des cookies nécessaires à son fonctionnement : un cookie de session, et un cookie « Rester connecté » (90 jours, si vous le conservez). Aucun cookie publicitaire.</p>
+
+  <h2 class="font-semibold mt-6 mb-2">Destinataires et hébergement</h2>
+  <p class="text-sm mb-4">Les données sont hébergées chez {LEGAL.hosting}. Elles ne sont pas vendues ni transmises à des tiers à des fins commerciales.</p>
+
+  <h2 class="font-semibold mt-6 mb-2">Accès par l’éditeur</h2>
+  <p class="text-sm mb-4">L’éditeur de l’application peut accéder aux comptes pour administrer le service (assistance, sécurité, maintenance). Cet accès est limité à ce besoin et tracé.</p>
+
+  <h2 class="font-semibold mt-6 mb-2">Services tiers</h2>
+  {LEGAL.thirdParties.length === 0 ? (
+    <p class="text-sm mb-4">Aucun service tiers n’est activé dans l’application.</p>
+  ) : (
+    <ul class="text-sm mb-4 list-disc pl-5 space-y-1">
+      {LEGAL.thirdParties.map((service) => <li>{service}</li>)}
+    </ul>
+  )}
+
+  <h2 class="font-semibold mt-6 mb-2">Durée de conservation</h2>
+  <p class="text-sm mb-4">Compte : {LEGAL.retentionAccount}</p>
+  <p class="text-sm mb-4">Sauvegardes : {LEGAL.retentionBackups}</p>
+
+  <h2 class="font-semibold mt-6 mb-2">Vos droits</h2>
+  <p class="text-sm mb-4">Vous pouvez accéder à vos données, les exporter, les corriger et demander leur suppression. Pour toute demande : {LEGAL.contactEmail}. Selon votre pays, la loi applicable est : {LEGAL.laws}.</p>
+</AppLayout>

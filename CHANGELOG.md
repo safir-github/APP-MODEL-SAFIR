@@ -4,6 +4,12 @@ Toutes les améliorations du modèle, de la plus récente à la plus ancienne.
 Format : date, puis ce qui a changé et pourquoi. Les reports dans les projets sont notés
 sous « Reporté dans ».
 
+## 2026-11-02 (pages légales)
+
+- Pages génériques `/conditions` et `/confidentialite`, valeurs propres à chaque application dans `src/legal.ts`.
+- Liens depuis l'inscription et « Mon compte ». Procédure et règle de mise à jour dans docs/LEGAL.md.
+- Pourquoi : les mêmes textes et la même vigilance pour toutes les applications, sans les réécrire à chaque projet.
+
 ## 2026-11-02 (rôle administrateur)
 
 - Colonne `users.is_admin`, attribuée uniquement en ligne de commande (`api/cli/make_admin.php`), jamais depuis le web.

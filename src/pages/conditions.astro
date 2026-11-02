@@ -1,0 +1,33 @@
+---
+import AppLayout from '../layouts/AppLayout.astro';
+import { LEGAL } from '../legal';
+---
+<AppLayout title="Conditions d'utilisation">
+  <a href="/" class="text-sm" style="color: var(--copper)">← Retour</a>
+  <h1 class="font-serif text-3xl font-semibold mt-4 mb-2" style="font-family: var(--serif)">Conditions d'utilisation</h1>
+  {LEGAL.draft && (
+    <p class="text-sm mb-6" style="color: var(--neg)">Version de travail, à relire et valider avant diffusion.</p>
+  )}
+  <p class="text-sm mb-6" style="color: var(--text-2)">Dernière mise à jour : {LEGAL.lastUpdate}</p>
+
+  <h2 class="font-semibold mt-6 mb-2">1. Objet</h2>
+  <p class="text-sm mb-4">{LEGAL.appName} est une application web. Elle est fournie en l’état, sans garantie de disponibilité permanente.</p>
+
+  <h2 class="font-semibold mt-6 mb-2">2. Compte</h2>
+  <p class="text-sm mb-4">Vous êtes responsable de la confidentialité de votre mot de passe et de l’exactitude des informations saisies. Vous devez être majeur, ou disposer de l’autorisation de votre représentant légal, pour créer un compte.</p>
+
+  <h2 class="font-semibold mt-6 mb-2">3. Usage</h2>
+  <p class="text-sm mb-4">Vous vous engagez à utiliser l’application dans le respect de la loi et sans porter atteinte aux autres utilisateurs ni au service.</p>
+
+  <h2 class="font-semibold mt-6 mb-2">4. Disponibilité</h2>
+  <p class="text-sm mb-4">Le service peut être interrompu pour maintenance ou en cas de panne. Conservez vos propres copies des informations importantes.</p>
+
+  <h2 class="font-semibold mt-6 mb-2">5. Données personnelles</h2>
+  <p class="text-sm mb-4">Le traitement de vos données personnelles est décrit dans la <a href="/confidentialite" style="color: var(--copper)">politique de confidentialité</a>.</p>
+
+  <h2 class="font-semibold mt-6 mb-2">6. Suppression</h2>
+  <p class="text-sm mb-4">Vous pouvez supprimer votre compte à tout moment depuis « Mon compte ». La suppression efface vos données de l’application, sous réserve des sauvegardes décrites dans la politique de confidentialité.</p>
+
+  <h2 class="font-semibold mt-6 mb-2">7. Contact</h2>
+  <p class="text-sm mb-4">Pour toute question : {LEGAL.contactEmail}.</p>
+</AppLayout>
