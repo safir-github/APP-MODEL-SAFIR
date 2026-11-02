@@ -8,3 +8,53 @@
 @import 'tailwindcss';
 @import './tokens.css';
 @import './device.css';
+
+/* ===== Composants du tableau de bord administrateur (reprise du style de Ma Compta IA) =====
+   Provisoire comme le reste des styles : seules les variables de tokens.css sont utilisées. */
+.d-page { display: flex; flex-direction: column; gap: 20px; padding: 4px 14px 8px; }
+.d-card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  padding: 18px;
+}
+.d-card-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; margin-bottom: 12px; }
+.d-card-head > b { font-family: var(--serif); font-size: 18px; font-weight: 600; }
+.d-muted { color: var(--text-2); font-size: 13px; }
+.d-kpis { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.d-kpi { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-md); padding: 14px; }
+.d-kpi-value { font-family: var(--serif); font-size: 26px; font-weight: 600; }
+.d-kpi-label { color: var(--text-2); font-size: 12px; margin-top: 2px; }
+.d-delta { font-size: 12px; font-weight: 600; margin-top: 6px; }
+.d-delta--up { color: var(--pos); }
+.d-delta--down { color: var(--neg); }
+.d-delta--flat { color: var(--text-2); }
+.d-chart { width: 100%; height: 140px; display: block; }
+.d-legend { display: flex; gap: 14px; font-size: 12px; color: var(--text-2); margin-top: 8px; }
+.d-legend span::before { content: ''; display: inline-block; width: 10px; height: 10px; border-radius: 5px; margin-right: 6px; background: var(--c); }
+.d-field { height: 48px; border-radius: 24px; padding: 0 16px; background: transparent; border: 1px solid var(--line-2); color: var(--text); font: inherit; min-width: 0; width: 100%; }
+.d-row { display: flex; gap: 10px; align-items: center; }
+.d-list { display: flex; flex-direction: column; gap: 10px; }
+.d-item { border: 1px solid var(--line); border-radius: var(--r-md); padding: 12px 14px; font-size: 14px; }
+.d-item-title { font-weight: 600; }
+.d-item-sub { color: var(--text-2); font-size: 13px; margin-top: 2px; }
+.d-item-actions { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+.d-chip { display: inline-flex; align-items: center; height: 24px; padding: 0 10px; border-radius: 12px; font-size: 12px; font-weight: 600; background: color-mix(in oklab, var(--copper) 16%, transparent); color: var(--copper); }
+.d-chip--off { background: var(--surface-2); color: var(--text-2); }
+.d-btn { height: 44px; padding: 0 18px; border-radius: 22px; border: 1px solid var(--line-2); background: transparent; color: var(--text); font: inherit; font-weight: 600; font-size: 14px; display: inline-flex; align-items: center; justify-content: center; }
+.d-btn-primary { background: var(--copper); color: var(--on-accent); border-color: transparent; }
+.d-btn-link { height: auto; border: 0; padding: 0; color: var(--copper); font-weight: 600; font-size: 13px; }
+.d-sheet { position: absolute; inset: 0; z-index: 80; }
+.d-sheet[hidden] { display: none !important; }
+.d-sheet-backdrop { position: absolute; inset: 0; background: rgba(0, 0, 0, 0.45); }
+.d-sheet-panel {
+  position: absolute; left: 0; right: 0; bottom: 0;
+  background: var(--tab-bg);
+  border-top: 1px solid var(--tab-border);
+  border-radius: 28px 28px 0 0;
+  padding: 12px 18px 26px;
+  display: flex; flex-direction: column; gap: 12px;
+}
+.d-grab { width: 40px; height: 4px; border-radius: 2px; background: var(--line-2); margin: 0 auto; }
+.d-options { display: flex; flex-direction: column; gap: 8px; }
+.d-option { display: flex; align-items: center; gap: 10px; padding: 12px 14px; border: 1px solid var(--line); border-radius: var(--r-md); font-size: 14px; }
