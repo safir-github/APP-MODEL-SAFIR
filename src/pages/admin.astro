@@ -1,0 +1,58 @@
+---
+import AppLayout from '../layouts/AppLayout.astro';
+---
+<AppLayout title="Administration" current="/compte" tabs={[{ href: '/', label: 'Accueil' }, { href: '/compte', label: 'Mon compte' }]}>
+  <div id="auth-gate" class="text-sm" style="color: var(--text-2)">Chargement…</div>
+  <div id="admin-root" hidden>
+    <h1 class="font-serif text-3xl font-semibold mb-2" style="font-family: var(--serif)">Administration</h1>
+    <p class="text-sm mb-6" style="color: var(--text-2)">Comptes de l'application</p>
+    <div id="admin-error" hidden class="mb-4 rounded-xl px-4 py-3 text-sm" style="color: var(--neg)"></div>
+    <ul id="user-list" class="space-y-3"></ul>
+  </div>
+</AppLayout>
+
+<script>
+  import { api } from '../scripts/api';
+
+  // Garde côté interface : seul l'affichage dépend du rôle. La liste est protégée par le serveur (api/admin/users.php).
+  (async () => {
+    const me = await api.me();
+    if (!me.data?.user) {
+      window.location.replace('/login?from=' + encodeURIComponent(window.location.pathname));
+      return;
+    }
+    if (!me.data.user.is_admin) {
+      window.location.replace('/');
+      return;
+    }
+    document.getElementById('auth-gate')?.setAttribute('hidden', '');
+    document.getElementById('admin-root')?.removeAttribute('hidden');
+
+    const { ok, data } = await api.adminUsers();
+    const errorEl = document.getElementById('admin-error') as HTMLElement;
+    if (!ok) {
+      errorEl.textContent = data?.error || 'Liste indisponible.';
+      errorEl.hidden = false;
+      return;
+    }
+    const list = document.getElementById('user-list') as HTMLElement;
+    for (const user of data.users) {
+      const li = document.createElement('li');
+      li.className = 'rounded-2xl px-4 py-3 border';
+      li.style.borderColor = 'var(--line-2)';
+      const name = document.createElement('div');
+      name.className = 'font-semibold text-sm';
+      name.textContent = (user.name || '(sans nom)') + (user.is_admin ? ' · admin' : '');
+      const mail = document.createElement('div');
+      mail.className = 'text-sm';
+      mail.style.color = 'var(--text-2)';
+      mail.textContent = user.email;
+      const date = document.createElement('div');
+      date.className = 'text-xs';
+      date.style.color = 'var(--text-3)';
+      date.textContent = 'Inscrit le ' + user.created_at;
+      li.append(name, mail, date);
+      list.appendChild(li);
+    }
+  })();
+</script>

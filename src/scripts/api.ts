@@ -40,6 +40,7 @@ export const api = {
     request('/api/auth/update_profile.php', { method: 'POST', body: JSON.stringify({ name }) }),
   requestEmailChange: (password: string, email: string) =>
     request('/api/auth/request_email_change.php', { method: 'POST', body: JSON.stringify({ password, email }) }),
+  adminUsers: () => request('/api/admin/users.php'),
   confirmEmail: (token: string) =>
     request('/api/auth/confirm_email.php', { method: 'POST', body: JSON.stringify({ token }) }),
 };

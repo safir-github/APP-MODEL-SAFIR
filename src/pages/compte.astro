@@ -6,6 +6,7 @@ import AppLayout from '../layouts/AppLayout.astro';
   <div id="app-root" hidden>
     <h1 class="font-serif text-3xl font-semibold mb-2" style="font-family: var(--serif)">Mon compte</h1>
     <p id="user-email" class="text-sm mb-8" style="color: var(--text-2)"></p>
+    <a id="admin-link" href="/admin" hidden class="inline-flex h-12 px-6 rounded-3xl border items-center mb-8" style="border-color: var(--line-2)">Administration</a>
 
     <section class="mb-10">
       <h2 class="font-semibold mb-4">Nom</h2>
@@ -95,6 +96,8 @@ import AppLayout from '../layouts/AppLayout.astro';
     document.getElementById('app-root')?.removeAttribute('hidden');
     const emailEl = document.getElementById('user-email');
     if (emailEl) emailEl.textContent = data.user.email;
+    // Lien d'administration : affiché seulement si le compte est administrateur (l'accès réel est vérifié par le serveur)
+    if (data.user.is_admin) document.getElementById('admin-link')?.removeAttribute('hidden');
     const nameInput = document.getElementById('name-input') as HTMLInputElement;
     nameInput.value = data.user.name || '';
   })();
