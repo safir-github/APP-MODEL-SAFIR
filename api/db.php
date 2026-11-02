@@ -102,6 +102,17 @@ function db_init_schema(PDO $pdo): void {
     ");
     $pdo->exec("CREATE INDEX IF NOT EXISTS idx_events_created ON events (created_at)");
 
+    // Journal des accès du tableau de bord : qui a consulté l'activité de quel compte, et quand
+    $pdo->exec("
+        CREATE TABLE IF NOT EXISTS admin_log (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            admin_id TEXT NOT NULL,
+            action TEXT NOT NULL,
+            target TEXT NOT NULL DEFAULT '',
+            created_at INTEGER NOT NULL
+        );
+    ");
+
     // Changement d'adresse e-mail en attente : seule l'empreinte du lien de confirmation est stockée
     $pdo->exec("
         CREATE TABLE IF NOT EXISTS email_changes (

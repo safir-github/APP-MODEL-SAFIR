@@ -125,3 +125,9 @@ function log_event(?string $userId, string $type, string $path = ''): void {
     db()->prepare('INSERT INTO events (user_id, type, path, device, created_at) VALUES (?, ?, ?, ?, ?)')
         ->execute([$userId, $type, substr(parse_url($path, PHP_URL_PATH) ?: '', 0, 200), device_class(), time()]);
 }
+
+// Journal des accès administrateur (voir docs/ANALYTICS.md)
+function log_admin(string $adminId, string $action, string $target = ''): void {
+    db()->prepare('INSERT INTO admin_log (admin_id, action, target, created_at) VALUES (?, ?, ?, ?)')
+        ->execute([$adminId, $action, $target, time()]);
+}
