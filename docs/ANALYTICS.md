@@ -19,10 +19,12 @@ Table `events` : `user_id` (vide pour un visiteur non connecté), `type`, `path`
   `mc_consent` (180 jours, `1` ou `0`). Ce cookie ne sert qu'à retenir le choix.
 - Sans `mc_consent=1`, `api/track.php` n'enregistre rien : il répond 204 sans écrire.
 - Refuser n'a aucune conséquence sur l'usage de l'application.
+- **La bannière ne réapparaît jamais après un choix**, ni après acceptation ni après refus. Si le cookie serveur
+  a disparu alors que le choix existe dans le navigateur, il est recréé en silence, sans bannière.
+- Le choix se change uniquement en effaçant les données du site dans le navigateur.
 
 ## Conservation
-La tâche planifiée (`api/cron/run.php`) supprime les événements de plus de 90 jours (`job_purge_events`).
-Le journal des accès administrateur suit la même logique à mettre en place si la durée doit être limitée.
+La tâche planifiée (`api/cron/run.php`) supprime les événements et le journal des accès administrateur de plus de 90 jours (`job_purge_events`).
 
 ## Tableau de bord
 - `api/admin/overview.php` : chiffres agrégés (comptes, inscriptions, comptes actifs, visites, appareils, pages les plus vues, 14 derniers jours).
@@ -37,3 +39,12 @@ Toute nouvelle donnée collectée (nouvel événement, nouveau champ, nouveau se
 1. mettre à jour `src/pages/confidentialite.astro` et `docs/LEGAL.md` avant la mise en production ;
 2. vérifier que la donnée n'est pas un identifiant, une adresse IP ni un contenu saisi ;
 3. ajouter le contrôle correspondant dans `tests/run.php`.
+
+## Notification de l'administrateur
+- Tâche planifiée `job_admin_activity_digest` : un e-mail **par jour** à chaque administrateur (règle 6 : une notification
+  par personne et par 24 h), avec des chiffres seulement (comptes actifs, inscriptions, connexions, pages vues).
+- Aucune adresse ni donnée individuelle dans l'e-mail. Le détail se consulte dans `/admin`.
+- Choix de conception : un résumé quotidien plutôt qu'un e-mail à chaque connexion, pour éviter le spam et la surveillance
+  individuelle. Un envoi immédiat par utilisateur serait une décision distincte, à valider.
+- Les adresses reçoivent le résumé via `send_mail()` ; la délivrabilité dépend de SPF/DKIM (docs/EMAIL.md).
+- En test, `mail()` ne fonctionne pas : le test vérifie seulement que la tâche tourne et renvoie ses chiffres.

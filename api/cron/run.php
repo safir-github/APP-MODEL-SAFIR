@@ -18,5 +18,6 @@ $started = date('c');
 $results = [
     'daily_reminders' => job_daily_reminders(),
     'purge_events' => job_purge_events(),
+    'admin_digest' => job_admin_activity_digest(),
 ];
 echo json_encode(['started' => $started, 'results' => $results], JSON_UNESCAPED_UNICODE) . PHP_EOL;

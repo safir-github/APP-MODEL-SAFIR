@@ -2,6 +2,15 @@
 
 Lancer : `npm test` (ou `php tests/run.php`). Aucune dépendance à installer, PHP suffit.
 
+Prérequis :
+- PHP en ligne de commande. `npm test` appelle `php` : il doit être dans le PATH. Le script lance les sous-processus
+  avec le binaire PHP qui l'exécute (`PHP_BINARY`), donc `php tests/run.php` fonctionne même si `php` n'est pas dans le PATH.
+- Le port 8099 doit être libre (serveur de test).
+
+Base de test : le script crée une base SQLite temporaire et la passe au serveur de test par la variable
+d'environnement **`APP_DB_PATH`** (lue par `api/config.php`). Cette variable n'est jamais à définir en production ;
+la base de production est fixée par `DB_PATH` dans `api/config.local.php` (voir `config.local.php.example`).
+
 ## Ce qui est testé
 `tests/run.php` lance un serveur PHP sur une **base SQLite temporaire** (variable `APP_DB_PATH`),
 envoie de vraies requêtes HTTP et vérifie les réponses :

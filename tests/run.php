@@ -13,7 +13,7 @@ $base = "http://127.0.0.1:$port";
 $dbFile = sys_get_temp_dir() . '/app-model-test-' . bin2hex(random_bytes(4)) . '.db';
 
 $proc = proc_open(
-    ['php', '-S', "127.0.0.1:$port", "$root/dev-router.php"],
+    [PHP_BINARY, '-S', "127.0.0.1:$port", "$root/dev-router.php"],
     [1 => ['file', '/dev/null', 'w'], 2 => ['file', '/dev/null', 'w']],
     $pipes,
     $root,
@@ -151,6 +151,7 @@ try {
 
     $r = request($g, 'POST', '/api/auth/delete_account.php', ['password' => 'motdepasse-bob']);
     check('suppression : accepté (200)', $r['status'] === 200 && ($r['json']['ok'] ?? false) === true);
+    check('suppression : aucun événement de l\'utilisateur ne reste', (int)$db->query("SELECT COUNT(*) FROM events e JOIN users u ON u.id = e.user_id WHERE u.email = 'bob@test.local'")->fetchColumn() === 0);
     check('suppression : aucun jeton de l\'utilisateur ne reste', (int)$db->query("SELECT COUNT(*) FROM auth_tokens t JOIN users u ON u.id = t.user_id WHERE u.email = 'bob@test.local'")->fetchColumn() === 0);
 
     $h = [];
@@ -213,14 +214,14 @@ try {
     check('admin : script de promotion refusé par le web (403)', $r['status'] === 403);
 
     $env = 'APP_DB_PATH=' . escapeshellarg($dbFile) . ' ';
-    $out = shell_exec($env . 'php ' . escapeshellarg("$root/api/cli/make_admin.php") . ' ' . escapeshellarg('alice2@test.local') . ' 2>&1');
+    $out = shell_exec($env . escapeshellarg(PHP_BINARY) . ' ' . escapeshellarg("$root/api/cli/make_admin.php") . ' ' . escapeshellarg('alice2@test.local') . ' 2>&1');
     check('admin : promotion en ligne de commande', str_contains((string)$out, 'maintenant administrateur'));
     $r = request($a, 'GET', '/api/auth/me.php');
     check('admin : le profil indique le rôle', ($r['json']['user']['is_admin'] ?? 0) == 1);
     $r = request($a, 'GET', '/api/admin/users.php');
     check('admin : liste accessible à l\'administrateur', $r['status'] === 200 && count($r['json']['users'] ?? []) >= 1);
 
-    $out = shell_exec($env . 'php ' . escapeshellarg("$root/api/cli/make_admin.php") . ' ' . escapeshellarg('alice2@test.local') . ' --revoke 2>&1');
+    $out = shell_exec($env . escapeshellarg(PHP_BINARY) . ' ' . escapeshellarg("$root/api/cli/make_admin.php") . ' ' . escapeshellarg('alice2@test.local') . ' --revoke 2>&1');
     check('admin : retrait du rôle en ligne de commande', str_contains((string)$out, 'retiré'));
     $r = request($a, 'GET', '/api/admin/users.php');
     check('admin : liste de nouveau refusée après retrait (403)', $r['status'] === 403);
@@ -247,7 +248,7 @@ try {
     check('suivi : après refus, rien n\'est enregistré', $total() === $avant2);
 
     // --- Tableau de bord (administrateur) ---
-    $out = shell_exec($env . 'php ' . escapeshellarg("$root/api/cli/make_admin.php") . ' ' . escapeshellarg('alice2@test.local') . ' 2>&1');
+    $out = shell_exec($env . escapeshellarg(PHP_BINARY) . ' ' . escapeshellarg("$root/api/cli/make_admin.php") . ' ' . escapeshellarg('alice2@test.local') . ' 2>&1');
     $r = request($a, 'GET', '/api/admin/overview.php');
     check('tableau : vue d\'ensemble accessible à l\'administrateur', $r['status'] === 200 && isset($r['json']['accounts']) && isset($r['json']['daily14']));
     $r = request($anonyme, 'GET', '/api/admin/overview.php');
@@ -265,7 +266,7 @@ try {
     check('tableau : journal des accès tracé', $r['status'] === 200 && count($r['json']['entries'] ?? []) >= 3);
     $r = request($anonyme, 'GET', '/api/admin/events.php');
     check('tableau : activité refusée sans droits (401)', $r['status'] === 401);
-    shell_exec($env . 'php ' . escapeshellarg("$root/api/cli/make_admin.php") . ' ' . escapeshellarg('alice2@test.local') . ' --revoke 2>&1');
+    shell_exec($env . escapeshellarg(PHP_BINARY) . ' ' . escapeshellarg("$root/api/cli/make_admin.php") . ' ' . escapeshellarg('alice2@test.local') . ' --revoke 2>&1');
 
     // --- Déconnexion ---
     $r = request($a, 'POST', '/api/auth/logout.php');
@@ -279,7 +280,8 @@ try {
     $r = request($h, 'GET', '/api/cron/run.php');
     check('tâche planifiée : refusée par le web (403)', $r['status'] === 403);
 
-    $out = shell_exec('APP_DB_PATH=' . escapeshellarg($dbFile) . ' php ' . escapeshellarg("$root/api/cron/run.php"));
+    $out = shell_exec('APP_DB_PATH=' . escapeshellarg($dbFile) . ' ' . escapeshellarg(PHP_BINARY) . ' ' . escapeshellarg("$root/api/cron/run.php"));
+    check('notification administrateur : résumé 24 h dans la tâche planifiée', str_contains((string)$out, '"admin_digest"') && str_contains((string)$out, '"active_accounts"'));
     check('événements : purge des 90 jours dans la tâche planifiée', str_contains((string)$out, '"purge_events"'));
     check('tâche planifiée : exécutée en ligne de commande', str_contains((string)$out, '"daily_reminders"'));
 } catch (Throwable $e) {
@@ -288,6 +290,18 @@ try {
     proc_terminate($proc);
     proc_close($proc);
     foreach (['', '-wal', '-shm'] as $suffix) @unlink($dbFile . $suffix);
+}
+
+// --- Pages légales : aucun marqueur « À RENSEIGNER » en diffusion ---
+$legal = (string)file_get_contents("$root/src/legal.ts");
+$draftFalse = (bool)preg_match('/draft:\s*false/', $legal);
+$markers = substr_count($legal, 'À RENSEIGNER');
+check('pages légales : plus de marqueur « À RENSEIGNER » quand draft vaut false', !$draftFalse || $markers === 0);
+if ($draftFalse && is_dir("$root/dist")) {
+    foreach (['conditions', 'confidentialite'] as $page) {
+        $html = (string)@file_get_contents("$root/dist/$page/index.html");
+        check("pages légales : /$page sans marqueur dans le build", $html !== '' && !str_contains($html, 'À RENSEIGNER'));
+    }
 }
 
 echo PHP_EOL . "Résultat : $passed réussi(s), $failed échec(s)." . PHP_EOL;

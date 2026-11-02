@@ -30,7 +30,7 @@ Exemple : la mise en place d'un suivi d'utilisation rend fausse la phrase « Auc
 s'accompagne d'un cookie. Dans ce cas, mettre à jour la page **et** `lastUpdate`, puis relire.
 
 ## Liste de contrôle avant diffusion (à copier dans le projet)
-- [ ] `src/legal.ts` : plus aucun « À RENSEIGNER ».
+- [ ] `src/legal.ts` : plus aucun « À RENSEIGNER ». Le test `npm test` échoue si `draft` vaut `false` avec un marqueur restant, et vérifie le build.
 - [ ] `draft` vaut `false`, `lastUpdate` est la date de publication.
 - [ ] Les services tiers listés correspondent aux fonctions réellement activées.
 - [ ] Les durées de conservation sont vraies, sauvegardes comprises.

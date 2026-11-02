@@ -22,13 +22,15 @@ if (!$row || !password_verify($password, $row['password_hash'])) {
     fail('Mot de passe incorrect.', 403);
 }
 
-// Suppression définitive. Les tables liées à users.id avec ON DELETE CASCADE partent seules ;
+// Suppression définitive. Le journal d'événements (events) est aussi effacé : ce sont des données personnelles.
+// Les tables liées à users.id avec ON DELETE CASCADE partent seules ;
 // les autres (jetons, journal des e-mails) sont supprimées ici. Une table ajoutée par un projet
 // sans cascade doit être ajoutée à cette liste (voir docs/AUTH.md).
 $pdo = db();
 $pdo->beginTransaction();
 $pdo->prepare('DELETE FROM auth_tokens WHERE user_id = ?')->execute([$user['id']]);
 $pdo->prepare('DELETE FROM notifications_log WHERE user_id = ?')->execute([$user['id']]);
+$pdo->prepare('DELETE FROM events WHERE user_id = ?')->execute([$user['id']]);
 $pdo->prepare('DELETE FROM users WHERE id = ?')->execute([$user['id']]);
 $pdo->commit();
 

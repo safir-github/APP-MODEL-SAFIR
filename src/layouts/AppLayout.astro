@@ -23,7 +23,7 @@ const { title = 'Mon app', current = '/', tabs = [{ href: '/', label: 'Accueil' 
         <slot />
       </div>
       <TabBar slot="tabs" tabs={tabs} current={current} />
-      <div slot="overlay"><ConsentBanner /></div>
+      <div slot="overlay"><ConsentBanner raised /></div>
     </DeviceFrame>
   </body>
 </html>
