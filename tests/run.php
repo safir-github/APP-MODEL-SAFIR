@@ -190,6 +190,17 @@ try {
     $r = request($f, 'POST', '/api/auth/login.php', ['email' => 'alice2@test.local', 'password' => 'reinit-mdp-3']);
     check('e-mail : connexion avec la nouvelle adresse', $r['status'] === 200);
 
+    // --- Journal d'événements des comptes ---
+    $evt = fn(string $type) => (int)$db->query("SELECT COUNT(*) FROM events e JOIN users u ON u.id = e.user_id WHERE u.email = 'alice2@test.local' AND e.type = '$type'")->fetchColumn();
+    check('événements : inscription enregistrée', $evt('signup') >= 1);
+    check('événements : connexion enregistrée', $evt('login') >= 1);
+    $last = $db->query("SELECT last_login_at FROM users WHERE email = 'alice2@test.local'")->fetchColumn();
+    check('événements : dernière connexion mise à jour', $last !== false && (int)$last > 0 && (int)$last <= time());
+    $paths = $db->query("SELECT COUNT(*) FROM events WHERE path LIKE '%?%' OR path LIKE '%@%'")->fetchColumn();
+    check('événements : aucun paramètre d\'URL ni adresse e-mail enregistrés', (int)$paths === 0);
+    $devices = $db->query("SELECT COUNT(*) FROM events WHERE device NOT IN ('mobile','desktop')")->fetchColumn();
+    check('événements : classe d\'appareil seulement mobile ou desktop', (int)$devices === 0);
+
     // --- Rôle administrateur (attribué seulement en ligne de commande) ---
     $r = request($a, 'GET', '/api/auth/me.php');
     check('admin : compte ordinaire sans rôle administrateur', ($r['json']['user']['is_admin'] ?? 1) == 0);
@@ -220,12 +231,14 @@ try {
     unset($a['PHPSESSID']);
     $r = request($a, 'GET', '/api/auth/me.php');
     check('après déconnexion : plus d\'utilisateur', ($r['json']['ok'] ?? true) === false);
+    check('événements : déconnexion enregistrée', (int)$db->query("SELECT COUNT(*) FROM events e JOIN users u ON u.id = e.user_id WHERE u.email = 'alice2@test.local' AND e.type = 'logout'")->fetchColumn() >= 1);
 
     // --- Cron : refusé par le web, accepté en ligne de commande ---
     $r = request($h, 'GET', '/api/cron/run.php');
     check('tâche planifiée : refusée par le web (403)', $r['status'] === 403);
 
     $out = shell_exec('APP_DB_PATH=' . escapeshellarg($dbFile) . ' php ' . escapeshellarg("$root/api/cron/run.php"));
+    check('événements : purge des 90 jours dans la tâche planifiée', str_contains((string)$out, '"purge_events"'));
     check('tâche planifiée : exécutée en ligne de commande', str_contains((string)$out, '"daily_reminders"'));
 } catch (Throwable $e) {
     check('exécution des tests : ' . $e->getMessage(), false);

@@ -4,6 +4,11 @@ Toutes les améliorations du modèle, de la plus récente à la plus ancienne.
 Format : date, puis ce qui a changé et pourquoi. Les reports dans les projets sont notés
 sous « Reporté dans ».
 
+## 2026-11-02 (journal d'événements des comptes)
+
+- Table `events` (inscription, connexion, déconnexion), `users.last_login_at`, purge à 90 jours dans la tâche planifiée.
+- Aucune adresse IP ni contenu saisi ; classe d'appareil seulement. Voir docs/ANALYTICS.md.
+
 ## 2026-11-02 (pages légales)
 
 - Pages génériques `/conditions` et `/confidentialite`, valeurs propres à chaque application dans `src/legal.ts`.

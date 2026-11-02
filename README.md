@@ -25,6 +25,7 @@ authentification « rester connecté », déploiement FTP, thème clair/sombre, 
 - `api/cron/` et `api/lib/jobs.php` : tâches planifiées en ligne de commande.
 - `CLAUDE.md` : instructions pour l'agent (lu automatiquement).
 - `design/` : maquettes HTML des concepts (voir design/README.md).
+- `docs/ANALYTICS.md` : journal d'événements, conservation et tableau de bord administrateur.
 - `docs/LEGAL.md` : pages conditions et confidentialité, valeurs à renseigner par application.
 - `docs/NOUVEAU_PROJET.md` : comment cloner le modèle pour une nouvelle application, sans mélanger les historiques Git.
 - `docs/PREMIER_PROJET.md` : liste de contrôle pour le premier déploiement d'une application.

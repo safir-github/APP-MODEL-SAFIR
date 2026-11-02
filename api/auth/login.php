@@ -26,5 +26,7 @@ if (!$user || !password_verify($password, $user['password_hash'])) {
 
 $_SESSION['user_id'] = $user['id'];
 remember_user($user['id']);
+db()->prepare('UPDATE users SET last_login_at = ? WHERE id = ?')->execute([time(), $user['id']]);
+log_event($user['id'], 'login', '/login');
 
 json_out(['ok' => true, 'user' => ['id' => $user['id'], 'email' => $user['email']]]);

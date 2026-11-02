@@ -33,3 +33,10 @@ function job_daily_reminders(): array {
     }
     return ['sent' => $sent];
 }
+
+// Suppression des événements de plus de 90 jours (voir docs/ANALYTICS.md)
+function job_purge_events(): array {
+    $stmt = db()->prepare('DELETE FROM events WHERE created_at < ?');
+    $stmt->execute([time() - 90 * 86400]);
+    return ['deleted' => $stmt->rowCount()];
+}

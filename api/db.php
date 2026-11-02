@@ -83,6 +83,25 @@ function db_init_schema(PDO $pdo): void {
         $pdo->exec("ALTER TABLE users ADD COLUMN is_admin INTEGER NOT NULL DEFAULT 0");
     } catch (Throwable $e) {}
 
+    // Dernière connexion, pour le tableau de bord administrateur
+    try {
+        $pdo->exec("ALTER TABLE users ADD COLUMN last_login_at INTEGER");
+    } catch (Throwable $e) {}
+
+    // Journal d'événements des comptes (inscription, connexion, déconnexion). Conservé 90 jours (tâche planifiée).
+    // Pas d'adresse IP, pas d'identifiant de session, pas de contenu saisi : seulement le type, la page et la classe d'appareil.
+    $pdo->exec("
+        CREATE TABLE IF NOT EXISTS events (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id TEXT,
+            type TEXT NOT NULL,
+            path TEXT NOT NULL DEFAULT '',
+            device TEXT NOT NULL DEFAULT '',
+            created_at INTEGER NOT NULL
+        );
+    ");
+    $pdo->exec("CREATE INDEX IF NOT EXISTS idx_events_created ON events (created_at)");
+
     // Changement d'adresse e-mail en attente : seule l'empreinte du lien de confirmation est stockée
     $pdo->exec("
         CREATE TABLE IF NOT EXISTS email_changes (

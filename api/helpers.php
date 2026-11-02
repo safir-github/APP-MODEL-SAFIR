@@ -112,3 +112,16 @@ function restore_from_remember_token(): void {
     db()->prepare('UPDATE auth_tokens SET expires_at = ? WHERE token_hash = ?')->execute([$newExpiry, $hash]);
     setcookie(REMEMBER_COOKIE, $token, remember_cookie_options($newExpiry));
 }
+
+// ---------- Journal d'événements (voir docs/ANALYTICS.md) ----------
+// Classe d'appareil déduite de l'en-tête User-Agent : seulement « mobile » ou « desktop », jamais le texte complet.
+function device_class(): string {
+    $ua = strtolower($_SERVER['HTTP_USER_AGENT'] ?? '');
+    return preg_match('/mobile|iphone|android|ipad/', $ua) ? 'mobile' : 'desktop';
+}
+
+// Enregistre un événement. $path : chemin seul, sans paramètres d'URL.
+function log_event(?string $userId, string $type, string $path = ''): void {
+    db()->prepare('INSERT INTO events (user_id, type, path, device, created_at) VALUES (?, ?, ?, ?, ?)')
+        ->execute([$userId, $type, substr(parse_url($path, PHP_URL_PATH) ?: '', 0, 200), device_class(), time()]);
+}
