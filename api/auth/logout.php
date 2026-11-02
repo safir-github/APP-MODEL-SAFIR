@@ -1,6 +1,8 @@
 <?php
 require __DIR__ . '/../bootstrap.php';
 
+$logged = current_user();
+if ($logged) log_event($logged['id'], 'logout', '/logout');
 forget_remember();
 
 // Vide la session et détruit le cookie.

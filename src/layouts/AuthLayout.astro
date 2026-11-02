@@ -2,6 +2,7 @@
 import '../styles/global.css';
 import AuthTools from '../components/AuthTools.astro';
 import DeviceFrame from '../components/DeviceFrame.astro';
+import ConsentBanner from '../components/ConsentBanner.astro';
 const { title = 'Connexion' } = Astro.props;
 ---
 <!doctype html>
@@ -22,6 +23,7 @@ const { title = 'Connexion' } = Astro.props;
       <main class="w-full max-w-sm p-6">
         <slot />
       </main>
+      <div slot="overlay"><ConsentBanner /></div>
     </DeviceFrame>
     <script>
       import '../scripts/auth-tools.ts';

@@ -27,3 +27,12 @@ ne dépend pas du nettoyage des fichiers de session.
 ## Test rapide (local)
 1. `curl -c jar -H 'Content-Type: application/json' -d '{"email":"...","password":"..."}' localhost:8000/api/auth/login.php`
 2. Supprimer la ligne `PHPSESSID` du fichier `jar` : `api/auth/me.php` doit encore renvoyer l'utilisateur.
+
+## Rôle administrateur
+- Colonne `users.is_admin` (0 ou 1), ajoutée par `ALTER TABLE` dans `api/db.php`. Aucune adresse e-mail n'est écrite dans le code.
+- Attribution **uniquement en ligne de commande** : `php api/cli/make_admin.php adresse@exemple.fr` (ajouter `--revoke` pour retirer).
+  Le script refuse toute exécution par le web (403). Sur l'hébergement, le lancer depuis le terminal cPanel ou en SSH.
+- `require_admin()` (`api/helpers.php`) vérifie le rôle **à chaque requête**, côté serveur. Les endpoints admin vivent dans `api/admin/`.
+- `api/auth/me.php` renvoie `is_admin` : le front s'en sert seulement pour **afficher** le lien « Administration » (page `/admin`).
+  Cacher un élément n'est pas une protection : seule la vérification serveur protège les données.
+- Une application ajoute ses propres pages admin en créant un endpoint dans `api/admin/` qui commence par `require_admin();`.

@@ -190,18 +190,97 @@ try {
     $r = request($f, 'POST', '/api/auth/login.php', ['email' => 'alice2@test.local', 'password' => 'reinit-mdp-3']);
     check('e-mail : connexion avec la nouvelle adresse', $r['status'] === 200);
 
+    // --- Journal d'événements des comptes ---
+    $evt = fn(string $type) => (int)$db->query("SELECT COUNT(*) FROM events e JOIN users u ON u.id = e.user_id WHERE u.email = 'alice2@test.local' AND e.type = '$type'")->fetchColumn();
+    check('événements : inscription enregistrée', $evt('signup') >= 1);
+    check('événements : connexion enregistrée', $evt('login') >= 1);
+    $last = $db->query("SELECT last_login_at FROM users WHERE email = 'alice2@test.local'")->fetchColumn();
+    check('événements : dernière connexion mise à jour', $last !== false && (int)$last > 0 && (int)$last <= time());
+    $paths = $db->query("SELECT COUNT(*) FROM events WHERE path LIKE '%?%' OR path LIKE '%@%'")->fetchColumn();
+    check('événements : aucun paramètre d\'URL ni adresse e-mail enregistrés', (int)$paths === 0);
+    $devices = $db->query("SELECT COUNT(*) FROM events WHERE device NOT IN ('mobile','desktop')")->fetchColumn();
+    check('événements : classe d\'appareil seulement mobile ou desktop', (int)$devices === 0);
+
+    // --- Rôle administrateur (attribué seulement en ligne de commande) ---
+    $r = request($a, 'GET', '/api/auth/me.php');
+    check('admin : compte ordinaire sans rôle administrateur', ($r['json']['user']['is_admin'] ?? 1) == 0);
+    $r = request($a, 'GET', '/api/admin/users.php');
+    check('admin : liste refusée à un compte ordinaire (403)', $r['status'] === 403);
+    $anonyme = [];
+    $r = request($anonyme, 'GET', '/api/admin/users.php');
+    check('admin : liste refusée sans connexion (401)', $r['status'] === 401);
+    $r = request($anonyme, 'GET', '/api/cli/make_admin.php');
+    check('admin : script de promotion refusé par le web (403)', $r['status'] === 403);
+
+    $env = 'APP_DB_PATH=' . escapeshellarg($dbFile) . ' ';
+    $out = shell_exec($env . 'php ' . escapeshellarg("$root/api/cli/make_admin.php") . ' ' . escapeshellarg('alice2@test.local') . ' 2>&1');
+    check('admin : promotion en ligne de commande', str_contains((string)$out, 'maintenant administrateur'));
+    $r = request($a, 'GET', '/api/auth/me.php');
+    check('admin : le profil indique le rôle', ($r['json']['user']['is_admin'] ?? 0) == 1);
+    $r = request($a, 'GET', '/api/admin/users.php');
+    check('admin : liste accessible à l\'administrateur', $r['status'] === 200 && count($r['json']['users'] ?? []) >= 1);
+
+    $out = shell_exec($env . 'php ' . escapeshellarg("$root/api/cli/make_admin.php") . ' ' . escapeshellarg('alice2@test.local') . ' --revoke 2>&1');
+    check('admin : retrait du rôle en ligne de commande', str_contains((string)$out, 'retiré'));
+    $r = request($a, 'GET', '/api/admin/users.php');
+    check('admin : liste de nouveau refusée après retrait (403)', $r['status'] === 403);
+
+    // --- Consentement et pages vues ---
+    $sans = [];
+    $total = fn() => (int)$db->query("SELECT COUNT(*) FROM events WHERE type = 'page_view'")->fetchColumn();
+    $avant = $total();
+    $r = request($sans, 'POST', '/api/track.php', ['path' => '/']);
+    check('suivi : sans consentement, aucune page vue enregistrée (204)', $r['status'] === 204 && $total() === $avant);
+    $cj = [];
+    $r = request($cj, 'POST', '/api/consent.php', ['accept' => true]);
+    check('consentement : accepté et mémorisé par cookie', $r['status'] === 200 && ($cj['mc_consent'] ?? '') === '1');
+    $r = request($cj, 'POST', '/api/track.php', ['path' => '/login']);
+    check('suivi : avec consentement, page vue enregistrée', $r['status'] === 204 && $total() === $avant + 1);
+    $r = request($cj, 'POST', '/api/track.php', ['path' => '/compte?token=secret']);
+    check('suivi : paramètres d\'URL refusés (400)', $r['status'] === 400);
+    $r = request($cj, 'POST', '/api/track.php', ['path' => 'https://exemple.fr/']);
+    check('suivi : URL complète refusée (400)', $r['status'] === 400);
+    $r = request($cj, 'POST', '/api/consent.php', ['accept' => false]);
+    check('consentement : refus mémorisé, plus de suivi', ($cj['mc_consent'] ?? '') === '0');
+    $avant2 = $total();
+    $r = request($cj, 'POST', '/api/track.php', ['path' => '/']);
+    check('suivi : après refus, rien n\'est enregistré', $total() === $avant2);
+
+    // --- Tableau de bord (administrateur) ---
+    $out = shell_exec($env . 'php ' . escapeshellarg("$root/api/cli/make_admin.php") . ' ' . escapeshellarg('alice2@test.local') . ' 2>&1');
+    $r = request($a, 'GET', '/api/admin/overview.php');
+    check('tableau : vue d\'ensemble accessible à l\'administrateur', $r['status'] === 200 && isset($r['json']['accounts']) && isset($r['json']['daily14']));
+    $r = request($anonyme, 'GET', '/api/admin/overview.php');
+    check('tableau : vue d\'ensemble refusée sans connexion (401)', $r['status'] === 401);
+    $r = request($a, 'GET', '/api/admin/events.php?type=bidon');
+    check('tableau : type d\'événement inconnu refusé (400)', $r['status'] === 400);
+    $r = request($a, 'GET', '/api/admin/events.php?days=7');
+    check('tableau : activité listée', $r['status'] === 200 && is_array($r['json']['events'] ?? null));
+    $uid = $db->query("SELECT id FROM users WHERE email = 'alice2@test.local'")->fetchColumn();
+    $r = request($a, 'GET', '/api/admin/events.php?user_id=' . $uid . '&days=90');
+    check('tableau : activité d\'un compte listée', $r['status'] === 200 && count($r['json']['events'] ?? []) >= 1);
+    $r = request($a, 'GET', '/api/admin/users.php?q=alice2');
+    check('tableau : recherche de compte', $r['status'] === 200 && count($r['json']['users'] ?? []) === 1);
+    $r = request($a, 'GET', '/api/admin/journal.php');
+    check('tableau : journal des accès tracé', $r['status'] === 200 && count($r['json']['entries'] ?? []) >= 3);
+    $r = request($anonyme, 'GET', '/api/admin/events.php');
+    check('tableau : activité refusée sans droits (401)', $r['status'] === 401);
+    shell_exec($env . 'php ' . escapeshellarg("$root/api/cli/make_admin.php") . ' ' . escapeshellarg('alice2@test.local') . ' --revoke 2>&1');
+
     // --- Déconnexion ---
     $r = request($a, 'POST', '/api/auth/logout.php');
     check('déconnexion : 200', $r['status'] === 200);
     unset($a['PHPSESSID']);
     $r = request($a, 'GET', '/api/auth/me.php');
     check('après déconnexion : plus d\'utilisateur', ($r['json']['ok'] ?? true) === false);
+    check('événements : déconnexion enregistrée', (int)$db->query("SELECT COUNT(*) FROM events e JOIN users u ON u.id = e.user_id WHERE u.email = 'alice2@test.local' AND e.type = 'logout'")->fetchColumn() >= 1);
 
     // --- Cron : refusé par le web, accepté en ligne de commande ---
     $r = request($h, 'GET', '/api/cron/run.php');
     check('tâche planifiée : refusée par le web (403)', $r['status'] === 403);
 
     $out = shell_exec('APP_DB_PATH=' . escapeshellarg($dbFile) . ' php ' . escapeshellarg("$root/api/cron/run.php"));
+    check('événements : purge des 90 jours dans la tâche planifiée', str_contains((string)$out, '"purge_events"'));
     check('tâche planifiée : exécutée en ligne de commande', str_contains((string)$out, '"daily_reminders"'));
 } catch (Throwable $e) {
     check('exécution des tests : ' . $e->getMessage(), false);

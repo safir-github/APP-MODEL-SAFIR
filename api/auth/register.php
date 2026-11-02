@@ -29,5 +29,6 @@ db()->prepare('INSERT INTO users (id, email, password_hash) VALUES (?, ?, ?)')
 
 $_SESSION['user_id'] = $id;
 remember_user($id);
+log_event($id, 'signup', '/register');
 
 json_out(['ok' => true, 'user' => ['id' => $id, 'email' => $email]]);

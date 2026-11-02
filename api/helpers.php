@@ -50,7 +50,7 @@ function current_user(): ?array {
     start_app_session();
     if (empty($_SESSION['user_id'])) restore_from_remember_token();
     if (empty($_SESSION['user_id'])) return null;
-    $stmt = db()->prepare('SELECT id, email, name, created_at FROM users WHERE id = ?');
+    $stmt = db()->prepare('SELECT id, email, name, is_admin, created_at FROM users WHERE id = ?');
     $stmt->execute([$_SESSION['user_id']]);
     $u = $stmt->fetch();
     return $u ?: null;
@@ -59,6 +59,14 @@ function current_user(): ?array {
 function require_auth(): array {
     $user = current_user();
     if (!$user) unauthorized();
+    return $user;
+}
+
+// Réservé aux administrateurs. La vérification est faite ici, côté serveur, à chaque requête :
+// l'affichage de l'interface admin ne sert qu'à l'ergonomie, jamais à la sécurité.
+function require_admin(): array {
+    $user = require_auth();
+    if ((int)$user['is_admin'] !== 1) fail('Réservé aux administrateurs.', 403);
     return $user;
 }
 
@@ -103,4 +111,23 @@ function restore_from_remember_token(): void {
     $newExpiry = time() + REMEMBER_SECONDS;
     db()->prepare('UPDATE auth_tokens SET expires_at = ? WHERE token_hash = ?')->execute([$newExpiry, $hash]);
     setcookie(REMEMBER_COOKIE, $token, remember_cookie_options($newExpiry));
+}
+
+// ---------- Journal d'événements (voir docs/ANALYTICS.md) ----------
+// Classe d'appareil déduite de l'en-tête User-Agent : seulement « mobile » ou « desktop », jamais le texte complet.
+function device_class(): string {
+    $ua = strtolower($_SERVER['HTTP_USER_AGENT'] ?? '');
+    return preg_match('/mobile|iphone|android|ipad/', $ua) ? 'mobile' : 'desktop';
+}
+
+// Enregistre un événement. $path : chemin seul, sans paramètres d'URL.
+function log_event(?string $userId, string $type, string $path = ''): void {
+    db()->prepare('INSERT INTO events (user_id, type, path, device, created_at) VALUES (?, ?, ?, ?, ?)')
+        ->execute([$userId, $type, substr(parse_url($path, PHP_URL_PATH) ?: '', 0, 200), device_class(), time()]);
+}
+
+// Journal des accès administrateur (voir docs/ANALYTICS.md)
+function log_admin(string $adminId, string $action, string $target = ''): void {
+    db()->prepare('INSERT INTO admin_log (admin_id, action, target, created_at) VALUES (?, ?, ?, ?)')
+        ->execute([$adminId, $action, $target, time()]);
 }

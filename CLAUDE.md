@@ -29,4 +29,6 @@ Pour une application précise, ce modèle est combiné avec une **maquette HTML*
 - Maquettes : `docs/DESIGN.md` ; intégration : `docs/INTEGRATION.md`
 - Déploiement : `docs/DEPLOY.md`
 - Nouvelle application (cloner le modèle, historique Git séparé) : `docs/NOUVEAU_PROJET.md`
+- Journal d'événements et administration : `docs/ANALYTICS.md`
+- Pages légales (conditions, confidentialité, valeurs dans `src/legal.ts`) : `docs/LEGAL.md`
 - Tests : `docs/TESTS.md` ; premier déploiement d'une nouvelle application : `docs/PREMIER_PROJET.md`

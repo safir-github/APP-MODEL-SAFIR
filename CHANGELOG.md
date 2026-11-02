@@ -4,6 +4,33 @@ Toutes les améliorations du modèle, de la plus récente à la plus ancienne.
 Format : date, puis ce qui a changé et pourquoi. Les reports dans les projets sont notés
 sous « Reporté dans ».
 
+## 2026-11-02 (consentement et tableau de bord)
+
+- Bannière de consentement (refuser et accepter à égalité). Pages vues enregistrées seulement après acceptation (`mc_consent`).
+- Tableau de bord `/admin` : vue d'ensemble, recherche de comptes, activité filtrable, journal des accès.
+- Chaque consultation de l'activité d'un compte est tracée (`admin_log`).
+- Politique de confidentialité mise à jour (mesure d'audience, journal des connexions). Voir docs/ANALYTICS.md.
+- Tests : 72 contrôles.
+
+## 2026-11-02 (journal d'événements des comptes)
+
+- Table `events` (inscription, connexion, déconnexion), `users.last_login_at`, purge à 90 jours dans la tâche planifiée.
+- Aucune adresse IP ni contenu saisi ; classe d'appareil seulement. Voir docs/ANALYTICS.md.
+
+## 2026-11-02 (pages légales)
+
+- Pages génériques `/conditions` et `/confidentialite`, valeurs propres à chaque application dans `src/legal.ts`.
+- Liens depuis l'inscription et « Mon compte ». Procédure et règle de mise à jour dans docs/LEGAL.md.
+- Pourquoi : les mêmes textes et la même vigilance pour toutes les applications, sans les réécrire à chaque projet.
+
+## 2026-11-02 (rôle administrateur)
+
+- Colonne `users.is_admin`, attribuée uniquement en ligne de commande (`api/cli/make_admin.php`), jamais depuis le web.
+- `require_admin()` vérifie le rôle côté serveur ; `api/admin/users.php` liste les comptes (réservé aux admins).
+- Page `/admin` et lien « Administration » dans « Mon compte », affichés seulement si `is_admin`.
+- Aucune adresse e-mail dans le code : chaque application désigne son administrateur par la commande.
+- Tests : 50 contrôles. Voir docs/AUTH.md.
+
 ## 2026-11-01 (procédure de nouveau projet)
 
 - `docs/NOUVEAU_PROJET.md` : clonage de `main`, suppression du `.git` du modèle, premier commit de l'application,
