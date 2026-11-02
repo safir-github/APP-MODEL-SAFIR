@@ -48,3 +48,15 @@ Toute nouvelle donnée collectée (nouvel événement, nouveau champ, nouveau se
   individuelle. Un envoi immédiat par utilisateur serait une décision distincte, à valider.
 - Les adresses reçoivent le résumé via `send_mail()` ; la délivrabilité dépend de SPF/DKIM (docs/EMAIL.md).
 - En test, `mail()` ne fonctionne pas : le test vérifie seulement que la tâche tourne et renvoie ses chiffres.
+
+## Classification des comptes (`users.account_kind`)
+- Valeurs : `reel` (défaut), `test`, `agent`, `interne`. Changement par `api/admin/account_kind.php` (administrateur, tracé dans `admin_log`).
+- Les comptes non `reel` sont **exclus de tous les chiffres** de `overview.php`. Leurs événements restent dans `events` et restent consultables.
+- La liste des comptes peut masquer les comptes non réels (`users.php?reel=1`, case cochée par défaut dans `/admin`).
+
+## Fiche détaillée par compte
+- `api/admin/account.php?id=` : identité, dates (création, première et dernière connexion, dernière activité),
+  fréquence (jours actifs sur 7, 30 et 90 jours, connexions sur 7 jours et par semaine sur 90 jours, série en cours),
+  état lisible (« Actif », « Inactif depuis N jours », « Jamais connecté »), actions par type, pages et appareils sur 90 jours,
+  chronologie des 50 derniers événements.
+- Un compte sans page vue affiche une note explicite. Aucune adresse IP. Chaque consultation est tracée dans `admin_log`.

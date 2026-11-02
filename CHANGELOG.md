@@ -4,6 +4,14 @@ Toutes les améliorations du modèle, de la plus récente à la plus ancienne.
 Format : date, puis ce qui a changé et pourquoi. Les reports dans les projets sont notés
 sous « Reporté dans ».
 
+## 2026-11-02 (classification des comptes, branche 1.4)
+
+- Colonne `users.account_kind` (reel, test, agent, interne ; défaut reel), route admin `account_kind.php` tracée dans `admin_log`.
+- Menu par compte dans la liste, filtre pour masquer les comptes non réels, exclusion de ces comptes de `overview.php`.
+- Tests : 84 contrôles.
+- Affichage des 14 derniers jours (visites et inscriptions, en barres) à partir de `daily14`.
+- Fiche détaillée par compte (`account.php`) : dates, fréquence, état, actions, pages, appareils, chronologie. Consultation tracée.
+
 ## 2026-11-02 (bannière de consentement définitive)
 
 - La bannière ne se réaffiche plus après un choix. Si le cookie serveur a disparu, il est recréé en silence.

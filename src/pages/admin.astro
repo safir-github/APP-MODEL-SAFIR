@@ -15,6 +15,8 @@ import AppLayout from '../layouts/AppLayout.astro';
       <ul id="top-paths" class="text-sm space-y-1"></ul>
       <h3 class="font-semibold mt-5 mb-2 text-sm">Appareils (30 jours)</h3>
       <ul id="devices" class="text-sm space-y-1"></ul>
+      <h3 class="font-semibold mt-5 mb-2 text-sm">14 derniers jours</h3>
+      <ul id="daily" class="text-sm space-y-2"></ul>
     </section>
 
     <section class="mb-8">
@@ -23,7 +25,19 @@ import AppLayout from '../layouts/AppLayout.astro';
         <input name="q" type="search" placeholder="E-mail ou nom" class="flex-1 min-w-0 h-11 rounded-2xl px-4 bg-transparent border" style="border-color: var(--line-2)" />
         <button type="submit" class="h-11 px-4 rounded-2xl border" style="border-color: var(--line-2)">Chercher</button>
       </form>
+      <label class="flex items-center gap-2 text-sm mb-3">
+        <input id="reel-only" type="checkbox" checked />
+        Masquer les comptes non réels (test, agent, interne)
+      </label>
       <ul id="user-list" class="space-y-2 text-sm"></ul>
+    </section>
+
+    <section id="account-panel" class="mb-8" hidden>
+      <div class="flex items-center justify-between mb-3">
+        <h2 class="font-semibold">Fiche du compte</h2>
+        <button id="account-close" type="button" class="text-sm underline" style="color: var(--copper)">Fermer</button>
+      </div>
+      <ul id="account-detail" class="space-y-2 text-sm"></ul>
     </section>
 
     <section class="mb-8">
@@ -115,22 +129,67 @@ import AppLayout from '../layouts/AppLayout.astro';
     fillList('top-paths', data.topPaths30.map((p: any) => item([`${p.path || '/'} · ${p.n}`])), 'Aucune visite enregistrée (consentement requis).');
     const deviceLabel: Record<string, string> = { mobile: 'Mobile', desktop: 'Ordinateur' };
     fillList('devices', data.devices30.map((d: any) => item([`${deviceLabel[d.device] || d.device} · ${d.n}`])), 'Aucune donnée.');
+    // Barres proportionnelles : visites (couleur d'accent) et inscriptions, sur le jour le plus chargé
+    const rows: any[] = data.daily14 || [];
+    const max = Math.max(1, ...rows.map((r) => Number(r.visits) || 0));
+    fillList('daily', rows.map((r) => {
+      const li = document.createElement('li');
+      const head = document.createElement('div');
+      head.textContent = `${r.day} · ${Number(r.visits) || 0} visite(s) · ${Number(r.signups) || 0} inscription(s)`;
+      const bar = document.createElement('div');
+      bar.className = 'h-2 rounded-full mt-1';
+      bar.style.background = 'var(--line-2)';
+      const fill = document.createElement('div');
+      fill.className = 'h-2 rounded-full';
+      fill.style.background = 'var(--copper)';
+      fill.style.width = `${Math.round(((Number(r.visits) || 0) / max) * 100)}%`;
+      bar.appendChild(fill);
+      li.append(head, bar);
+      return li;
+    }), 'Aucune activité sur 14 jours.');
   }
 
+  const kinds = ['reel', 'test', 'agent', 'interne'];
+  const kindLabels: Record<string, string> = { reel: 'Réel', test: 'Test', agent: 'Agent', interne: 'Interne' };
+
   async function loadUsers(q = '') {
-    const { ok, data } = await api.adminUsers(q);
+    const reelOnly = (document.getElementById('reel-only') as HTMLInputElement).checked;
+    const { ok, data } = await api.adminUsers(q, reelOnly);
     if (!ok) return showError(data?.error || 'Liste indisponible.');
     fillList('user-list', data.users.map((u: any) => {
       const lines = [`${u.name || '(sans nom)'}${u.is_admin ? ' · admin' : ''}`, u.email,
+        `Catégorie : ${kindLabels[u.account_kind] || u.account_kind}`,
         `Inscrit : ${u.created_at} · Dernière connexion : ${u.last_login_at ? date(u.last_login_at) : 'jamais'}`];
       const el = item(lines);
+      const select = document.createElement('select');
+      select.className = 'mt-2 h-9 rounded-xl px-2 bg-transparent border text-xs';
+      select.style.borderColor = 'var(--line-2)';
+      for (const kind of kinds) {
+        const opt = document.createElement('option');
+        opt.value = kind;
+        opt.textContent = kindLabels[kind];
+        opt.selected = kind === u.account_kind;
+        select.appendChild(opt);
+      }
+      select.addEventListener('change', async () => {
+        const res = await api.setAccountKind(u.id, select.value);
+        if (!res.ok) showError(res.data?.error || 'Changement refusé.');
+        else loadOverview();
+      });
+      el.appendChild(select);
       const btn = document.createElement('button');
       btn.type = 'button';
       btn.className = 'mt-2 text-xs underline';
       btn.style.color = 'var(--copper)';
       btn.textContent = 'Voir l’activité de ce compte';
       btn.addEventListener('click', () => loadEvents({ user_id: u.id, days: '90' }));
-      el.appendChild(btn);
+      const fiche = document.createElement('button');
+      fiche.type = 'button';
+      fiche.className = 'mt-2 ml-3 text-xs underline';
+      fiche.style.color = 'var(--copper)';
+      fiche.textContent = 'Fiche détaillée';
+      fiche.addEventListener('click', () => loadAccount(u.id));
+      el.append(btn, fiche);
       return el;
     }), 'Aucun compte.');
   }
@@ -143,6 +202,37 @@ import AppLayout from '../layouts/AppLayout.astro';
       `${date(e.created_at)} · ${e.device === 'mobile' ? 'mobile' : 'ordinateur'}${e.email ? ' · ' + e.email : ''}`,
     ])), 'Aucun événement pour ces critères.');
   }
+
+  const dateOrNever = (unix: number | null) => (unix ? date(unix) : 'jamais');
+
+  async function loadAccount(id: string) {
+    const { ok, data } = await api.adminAccount(id);
+    if (!ok) return showError(data?.error || 'Fiche indisponible.');
+    const f = data;
+    const rows: HTMLElement[] = [
+      item([`${f.identity.name || '(sans nom)'}${f.identity.is_admin ? ' · admin' : ''}`, f.identity.email,
+        `Catégorie : ${kindLabels[f.identity.account_kind] || f.identity.account_kind}`]),
+      item(['État', f.state]),
+      item(['Dates', `Création : ${f.dates.created_at}`,
+        `Première connexion : ${dateOrNever(f.dates.first_login)}`,
+        `Dernière connexion : ${dateOrNever(f.dates.last_login)}`,
+        `Dernière activité : ${dateOrNever(f.dates.last_activity)}`]),
+      item(['Fréquence', `Jours actifs : ${f.frequency.active_days_7} (7 j) · ${f.frequency.active_days_30} (30 j) · ${f.frequency.active_days_90} (90 j)`,
+        `Connexions : ${f.frequency.logins_last_7_days} sur 7 jours · ${f.frequency.logins_per_week_90} par semaine (90 j)`,
+        `Série en cours : ${f.frequency.streak_days} jour(s)`]),
+      item(['Actions (90 jours)', ...(f.actions90.length ? f.actions90.map((a: any) => `${labels[a.type] || a.type} : ${a.n}`) : ['Aucune action'])]),
+      item(['Pages vues (90 jours)', ...(f.pages90.length ? f.pages90.map((p: any) => `${p.path || '/'} : ${p.n}`) : [f.pagesNote])]),
+      item(['Appareils (90 jours)', ...(f.devices90.length ? f.devices90.map((d: any) => `${d.device === 'mobile' ? 'Mobile' : 'Ordinateur'} : ${d.n}`) : ['Aucune donnée'])]),
+      item(['Chronologie (50 derniers événements)', ...(f.chronology.length ? f.chronology.map((e: any) => `${date(e.created_at)} · ${labels[e.type] || e.type} · ${e.path || ''}`) : ['Aucun événement'])]),
+    ];
+    document.getElementById('account-detail')!.replaceChildren(...rows);
+    document.getElementById('account-panel')!.removeAttribute('hidden');
+    document.getElementById('account-panel')!.scrollIntoView({ behavior: 'smooth' });
+  }
+
+  document.getElementById('account-close')?.addEventListener('click', () => {
+    document.getElementById('account-panel')!.setAttribute('hidden', '');
+  });
 
   async function loadJournal() {
     const { ok, data } = await api.adminJournal();
@@ -172,6 +262,7 @@ import AppLayout from '../layouts/AppLayout.astro';
       e.preventDefault();
       loadUsers(String(new FormData(e.target as HTMLFormElement).get('q') || '').trim());
     });
+    document.getElementById('reel-only')?.addEventListener('change', () => loadUsers());
     document.getElementById('event-filter')?.addEventListener('submit', (e) => {
       e.preventDefault();
       const fd = new FormData(e.target as HTMLFormElement);

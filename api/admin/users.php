@@ -1,19 +1,27 @@
 <?php
 require_once __DIR__ . '/../bootstrap.php';
 
-// Liste des comptes, réservée aux administrateurs (vérifiée côté serveur). Recherche par e-mail ou nom : ?q=
+// Liste des comptes, réservée aux administrateurs (vérifiée côté serveur).
+// ?q= recherche par e-mail ou nom. ?reel=1 ne garde que les comptes de catégorie « reel ».
 $admin = require_admin();
-
 if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'GET') fail('Méthode non autorisée', 405);
 
 $q = trim((string)($_GET['q'] ?? ''));
-$sql = 'SELECT id, email, name, is_admin, created_at, last_login_at FROM users';
+$reelOnly = (string)($_GET['reel'] ?? '') === '1';
+
+$where = [];
 $params = [];
 if ($q !== '') {
-    $sql .= ' WHERE email LIKE ? OR name LIKE ?';
-    $params = ['%' . $q . '%', '%' . $q . '%'];
+    $where[] = '(email LIKE ? OR name LIKE ?)';
+    $params[] = '%' . $q . '%';
+    $params[] = '%' . $q . '%';
 }
-$sql .= ' ORDER BY created_at DESC LIMIT 200';
+if ($reelOnly) {
+    $where[] = "account_kind = 'reel'";
+}
+$sql = 'SELECT id, email, name, is_admin, account_kind, created_at, last_login_at FROM users'
+     . ($where ? ' WHERE ' . implode(' AND ', $where) : '')
+     . ' ORDER BY created_at DESC LIMIT 200';
 $stmt = db()->prepare($sql);
 $stmt->execute($params);
 

@@ -26,6 +26,7 @@ authentification « rester connecté », déploiement FTP, thème clair/sombre, 
 - `CLAUDE.md` : instructions pour l'agent (lu automatiquement).
 - `design/` : maquettes HTML des concepts (voir design/README.md).
 - `docs/ANALYTICS.md` : journal d'événements, conservation et tableau de bord administrateur.
+- `docs/WORKFLOW-MODELE.md` : qui fait quoi pour faire évoluer le modèle (agent du modèle, agent d'application, utilisateur).
 - `docs/LEGAL.md` : pages conditions et confidentialité, valeurs à renseigner par application.
 - `docs/NOUVEAU_PROJET.md` : comment cloner le modèle pour une nouvelle application, sans mélanger les historiques Git.
 - `docs/PREMIER_PROJET.md` : liste de contrôle pour le premier déploiement d'une application.
