@@ -190,6 +190,30 @@ try {
     $r = request($f, 'POST', '/api/auth/login.php', ['email' => 'alice2@test.local', 'password' => 'reinit-mdp-3']);
     check('e-mail : connexion avec la nouvelle adresse', $r['status'] === 200);
 
+    // --- Rôle administrateur (attribué seulement en ligne de commande) ---
+    $r = request($a, 'GET', '/api/auth/me.php');
+    check('admin : compte ordinaire sans rôle administrateur', ($r['json']['user']['is_admin'] ?? 1) == 0);
+    $r = request($a, 'GET', '/api/admin/users.php');
+    check('admin : liste refusée à un compte ordinaire (403)', $r['status'] === 403);
+    $anonyme = [];
+    $r = request($anonyme, 'GET', '/api/admin/users.php');
+    check('admin : liste refusée sans connexion (401)', $r['status'] === 401);
+    $r = request($anonyme, 'GET', '/api/cli/make_admin.php');
+    check('admin : script de promotion refusé par le web (403)', $r['status'] === 403);
+
+    $env = 'APP_DB_PATH=' . escapeshellarg($dbFile) . ' ';
+    $out = shell_exec($env . 'php ' . escapeshellarg("$root/api/cli/make_admin.php") . ' ' . escapeshellarg('alice2@test.local') . ' 2>&1');
+    check('admin : promotion en ligne de commande', str_contains((string)$out, 'maintenant administrateur'));
+    $r = request($a, 'GET', '/api/auth/me.php');
+    check('admin : le profil indique le rôle', ($r['json']['user']['is_admin'] ?? 0) == 1);
+    $r = request($a, 'GET', '/api/admin/users.php');
+    check('admin : liste accessible à l\'administrateur', $r['status'] === 200 && count($r['json']['users'] ?? []) >= 1);
+
+    $out = shell_exec($env . 'php ' . escapeshellarg("$root/api/cli/make_admin.php") . ' ' . escapeshellarg('alice2@test.local') . ' --revoke 2>&1');
+    check('admin : retrait du rôle en ligne de commande', str_contains((string)$out, 'retiré'));
+    $r = request($a, 'GET', '/api/admin/users.php');
+    check('admin : liste de nouveau refusée après retrait (403)', $r['status'] === 403);
+
     // --- Déconnexion ---
     $r = request($a, 'POST', '/api/auth/logout.php');
     check('déconnexion : 200', $r['status'] === 200);

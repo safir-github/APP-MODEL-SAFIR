@@ -77,6 +77,12 @@ function db_init_schema(PDO $pdo): void {
         $pdo->exec("ALTER TABLE users ADD COLUMN name TEXT NOT NULL DEFAULT ''");
     } catch (Throwable $e) {}
 
+    // Rôle administrateur : 0 = utilisateur, 1 = administrateur. Attribué uniquement en ligne de commande
+    // (api/cli/make_admin.php), jamais depuis le web.
+    try {
+        $pdo->exec("ALTER TABLE users ADD COLUMN is_admin INTEGER NOT NULL DEFAULT 0");
+    } catch (Throwable $e) {}
+
     // Changement d'adresse e-mail en attente : seule l'empreinte du lien de confirmation est stockée
     $pdo->exec("
         CREATE TABLE IF NOT EXISTS email_changes (

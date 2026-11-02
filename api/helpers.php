@@ -50,7 +50,7 @@ function current_user(): ?array {
     start_app_session();
     if (empty($_SESSION['user_id'])) restore_from_remember_token();
     if (empty($_SESSION['user_id'])) return null;
-    $stmt = db()->prepare('SELECT id, email, name, created_at FROM users WHERE id = ?');
+    $stmt = db()->prepare('SELECT id, email, name, is_admin, created_at FROM users WHERE id = ?');
     $stmt->execute([$_SESSION['user_id']]);
     $u = $stmt->fetch();
     return $u ?: null;
@@ -59,6 +59,14 @@ function current_user(): ?array {
 function require_auth(): array {
     $user = current_user();
     if (!$user) unauthorized();
+    return $user;
+}
+
+// Réservé aux administrateurs. La vérification est faite ici, côté serveur, à chaque requête :
+// l'affichage de l'interface admin ne sert qu'à l'ergonomie, jamais à la sécurité.
+function require_admin(): array {
+    $user = require_auth();
+    if ((int)$user['is_admin'] !== 1) fail('Réservé aux administrateurs.', 403);
     return $user;
 }
 
