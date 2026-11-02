@@ -4,6 +4,14 @@ Toutes les améliorations du modèle, de la plus récente à la plus ancienne.
 Format : date, puis ce qui a changé et pourquoi. Les reports dans les projets sont notés
 sous « Reporté dans ».
 
+## 2026-11-02 (consentement et tableau de bord)
+
+- Bannière de consentement (refuser et accepter à égalité). Pages vues enregistrées seulement après acceptation (`mc_consent`).
+- Tableau de bord `/admin` : vue d'ensemble, recherche de comptes, activité filtrable, journal des accès.
+- Chaque consultation de l'activité d'un compte est tracée (`admin_log`).
+- Politique de confidentialité mise à jour (mesure d'audience, journal des connexions). Voir docs/ANALYTICS.md.
+- Tests : 72 contrôles.
+
 ## 2026-11-02 (journal d'événements des comptes)
 
 - Table `events` (inscription, connexion, déconnexion), `users.last_login_at`, purge à 90 jours dans la tâche planifiée.
