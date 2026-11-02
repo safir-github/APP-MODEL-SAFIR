@@ -23,6 +23,10 @@ import AppLayout from '../layouts/AppLayout.astro';
         <input name="q" type="search" placeholder="E-mail ou nom" class="flex-1 min-w-0 h-11 rounded-2xl px-4 bg-transparent border" style="border-color: var(--line-2)" />
         <button type="submit" class="h-11 px-4 rounded-2xl border" style="border-color: var(--line-2)">Chercher</button>
       </form>
+      <label class="flex items-center gap-2 text-sm mb-3">
+        <input id="reel-only" type="checkbox" checked />
+        Masquer les comptes non réels (test, agent, interne)
+      </label>
       <ul id="user-list" class="space-y-2 text-sm"></ul>
     </section>
 
@@ -117,13 +121,34 @@ import AppLayout from '../layouts/AppLayout.astro';
     fillList('devices', data.devices30.map((d: any) => item([`${deviceLabel[d.device] || d.device} · ${d.n}`])), 'Aucune donnée.');
   }
 
+  const kinds = ['reel', 'test', 'agent', 'interne'];
+  const kindLabels: Record<string, string> = { reel: 'Réel', test: 'Test', agent: 'Agent', interne: 'Interne' };
+
   async function loadUsers(q = '') {
-    const { ok, data } = await api.adminUsers(q);
+    const reelOnly = (document.getElementById('reel-only') as HTMLInputElement).checked;
+    const { ok, data } = await api.adminUsers(q, reelOnly);
     if (!ok) return showError(data?.error || 'Liste indisponible.');
     fillList('user-list', data.users.map((u: any) => {
       const lines = [`${u.name || '(sans nom)'}${u.is_admin ? ' · admin' : ''}`, u.email,
+        `Catégorie : ${kindLabels[u.account_kind] || u.account_kind}`,
         `Inscrit : ${u.created_at} · Dernière connexion : ${u.last_login_at ? date(u.last_login_at) : 'jamais'}`];
       const el = item(lines);
+      const select = document.createElement('select');
+      select.className = 'mt-2 h-9 rounded-xl px-2 bg-transparent border text-xs';
+      select.style.borderColor = 'var(--line-2)';
+      for (const kind of kinds) {
+        const opt = document.createElement('option');
+        opt.value = kind;
+        opt.textContent = kindLabels[kind];
+        opt.selected = kind === u.account_kind;
+        select.appendChild(opt);
+      }
+      select.addEventListener('change', async () => {
+        const res = await api.setAccountKind(u.id, select.value);
+        if (!res.ok) showError(res.data?.error || 'Changement refusé.');
+        else loadOverview();
+      });
+      el.appendChild(select);
       const btn = document.createElement('button');
       btn.type = 'button';
       btn.className = 'mt-2 text-xs underline';
@@ -172,6 +197,7 @@ import AppLayout from '../layouts/AppLayout.astro';
       e.preventDefault();
       loadUsers(String(new FormData(e.target as HTMLFormElement).get('q') || '').trim());
     });
+    document.getElementById('reel-only')?.addEventListener('change', () => loadUsers());
     document.getElementById('event-filter')?.addEventListener('submit', (e) => {
       e.preventDefault();
       const fd = new FormData(e.target as HTMLFormElement);
