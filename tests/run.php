@@ -293,6 +293,26 @@ try {
     check('catégorie : retour à « reel »', $r['status'] === 200);
     shell_exec($env . escapeshellarg(PHP_BINARY) . ' ' . escapeshellarg("$root/api/cli/make_admin.php") . ' ' . escapeshellarg('alice2@test.local') . ' --revoke 2>&1');
 
+    // --- Fiche détaillée par compte ---
+    $r = request($a, 'GET', '/api/admin/account.php?id=' . $uid);
+    check('fiche : refusée à un compte ordinaire (403)', $r['status'] === 403);
+    shell_exec($env . escapeshellarg(PHP_BINARY) . ' ' . escapeshellarg("$root/api/cli/make_admin.php") . ' ' . escapeshellarg('alice2@test.local') . ' 2>&1');
+    $r = request($a, 'GET', '/api/admin/account.php?id=inexistant');
+    check('fiche : compte inconnu (404)', $r['status'] === 404);
+    $r = request($a, 'GET', '/api/admin/account.php?id=' . $uid);
+    $f = $r['json'] ?? [];
+    check('fiche : identité et dates présentes', $r['status'] === 200 && ($f['identity']['email'] ?? '') === 'alice2@test.local' && isset($f['dates']['created_at']));
+    check('fiche : fréquence calculée', isset($f['frequency']['active_days_7']) && isset($f['frequency']['streak_days']) && isset($f['frequency']['logins_per_week_90']));
+    check('fiche : état lisible', ($f['state'] ?? '') === 'Actif');
+    check('fiche : chronologie des événements', count($f['chronology'] ?? []) >= 1);
+    check('fiche : actions par type', count($f['actions90'] ?? []) >= 1);
+    check('fiche : aucune adresse IP ni paramètre d\'URL', !str_contains(json_encode($f), '127.0.0.1'));
+    $vus = (int)$db->query("SELECT COUNT(*) FROM admin_log WHERE action = 'view_account'")->fetchColumn();
+    check('fiche : consultation tracée dans admin_log', $vus >= 1);
+    $r = request($anonyme, 'GET', '/api/admin/account.php?id=' . $uid);
+    check('fiche : refusée sans connexion (401)', $r['status'] === 401);
+    shell_exec($env . escapeshellarg(PHP_BINARY) . ' ' . escapeshellarg("$root/api/cli/make_admin.php") . ' ' . escapeshellarg('alice2@test.local') . ' --revoke 2>&1');
+
     // --- Déconnexion ---
     $r = request($a, 'POST', '/api/auth/logout.php');
     check('déconnexion : 200', $r['status'] === 200);
