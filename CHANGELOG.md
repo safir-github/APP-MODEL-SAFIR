@@ -4,6 +4,11 @@ Toutes les améliorations du modèle, de la plus récente à la plus ancienne.
 Format : date, puis ce qui a changé et pourquoi. Les reports dans les projets sont notés
 sous « Reporté dans ».
 
+## 2026-11-02 (bannière de consentement définitive)
+
+- La bannière ne se réaffiche plus après un choix. Si le cookie serveur a disparu, il est recréé en silence.
+- Décision confirmée : pas de confirmation d'e-mail à l'inscription.
+
 ## 2026-11-02 (remarques de l'intégration Ma Compta IA)
 
 - Suppression de compte : efface aussi le journal d'événements de l'utilisateur (`events`).

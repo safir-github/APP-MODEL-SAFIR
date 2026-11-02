@@ -19,6 +19,9 @@ Table `events` : `user_id` (vide pour un visiteur non connecté), `type`, `path`
   `mc_consent` (180 jours, `1` ou `0`). Ce cookie ne sert qu'à retenir le choix.
 - Sans `mc_consent=1`, `api/track.php` n'enregistre rien : il répond 204 sans écrire.
 - Refuser n'a aucune conséquence sur l'usage de l'application.
+- **La bannière ne réapparaît jamais après un choix**, ni après acceptation ni après refus. Si le cookie serveur
+  a disparu alors que le choix existe dans le navigateur, il est recréé en silence, sans bannière.
+- Le choix se change uniquement en effaçant les données du site dans le navigateur.
 
 ## Conservation
 La tâche planifiée (`api/cron/run.php`) supprime les événements et le journal des accès administrateur de plus de 90 jours (`job_purge_events`).
