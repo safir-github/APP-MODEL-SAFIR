@@ -40,6 +40,7 @@ while (isset($set[$cursor->format('Y-m-d')])) {
     $cursor = $cursor->modify('-1 day');
 }
 
+$lastVisit = $q("SELECT MAX(created_at) FROM events WHERE user_id = ? AND type = 'page_view'", [$id])->fetchColumn();
 $firstLogin = $q("SELECT MIN(created_at) FROM events WHERE user_id = ? AND type = 'login'", [$id])->fetchColumn();
 $lastActivity = $q('SELECT MAX(created_at) FROM events WHERE user_id = ?', [$id])->fetchColumn();
 $loginsWeek = (int)$q("SELECT COUNT(*) FROM events WHERE user_id = ? AND type = 'login' AND created_at >= ?", [$id, $now - 7 * 86400])->fetchColumn();
@@ -73,6 +74,7 @@ json_out([
         'first_login' => $firstLogin ?: null,
         'last_login' => $user['last_login_at'] ? (int)$user['last_login_at'] : null,
         'last_activity' => $lastActivity ? (int)$lastActivity : null,
+        'last_visit' => $lastVisit ? (int)$lastVisit : null,
     ],
     'frequency' => [
         'active_days_7' => $activeDays(7),

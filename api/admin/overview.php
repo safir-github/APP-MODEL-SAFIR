@@ -33,6 +33,11 @@ $signups = fn (int $days) => $count("SELECT COUNT(*) FROM events e WHERE e.type 
 $visits = fn (int $days) => $count("SELECT COUNT(*) FROM events e WHERE e.type = 'page_view' AND e.created_at >= ? AND " . REEL_EVENT, [$now - $days * 86400]);
 $active = fn (int $days) => $count("SELECT COUNT(DISTINCT e.user_id) FROM events e WHERE e.user_id IS NOT NULL AND e.created_at >= ? AND " . REEL_ACCOUNT_EVENT, [$now - $days * 86400]);
 
+// Période précédente (7 jours juste avant) pour les variations affichées dans le tableau de bord
+$signupsPrev = $count("SELECT COUNT(*) FROM events e WHERE e.type = 'signup' AND e.created_at >= ? AND e.created_at < ? AND " . REEL_EVENT, [$now - 14 * 86400, $now - 7 * 86400]);
+$visitsPrev = $count("SELECT COUNT(*) FROM events e WHERE e.type = 'page_view' AND e.created_at >= ? AND e.created_at < ? AND " . REEL_EVENT, [$now - 14 * 86400, $now - 7 * 86400]);
+$activePrev = $count("SELECT COUNT(DISTINCT e.user_id) FROM events e WHERE e.user_id IS NOT NULL AND e.created_at >= ? AND e.created_at < ? AND " . REEL_ACCOUNT_EVENT, [$now - 14 * 86400, $now - 7 * 86400]);
+
 log_admin($admin['id'], 'view_overview');
 json_out([
     'ok' => true,
@@ -42,5 +47,6 @@ json_out([
     'visits' => ['7' => $visits(7), '30' => $visits(30)],
     'devices30' => $devices->fetchAll(),
     'topPaths30' => $paths->fetchAll(),
+    'previous7' => ['signups' => $signupsPrev, 'visits' => $visitsPrev, 'active' => $activePrev],
     'daily14' => $days14->fetchAll(),
 ]);

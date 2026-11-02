@@ -250,6 +250,7 @@ try {
     // --- Tableau de bord (administrateur) ---
     $out = shell_exec($env . escapeshellarg(PHP_BINARY) . ' ' . escapeshellarg("$root/api/cli/make_admin.php") . ' ' . escapeshellarg('alice2@test.local') . ' 2>&1');
     $r = request($a, 'GET', '/api/admin/overview.php');
+    check('tableau : période précédente pour les variations', isset($r['json']['previous7']['visits']) && isset($r['json']['previous7']['signups']) && isset($r['json']['previous7']['active']));
     check('tableau : vue d\'ensemble accessible à l\'administrateur', $r['status'] === 200 && isset($r['json']['accounts']) && isset($r['json']['daily14']));
     $r = request($anonyme, 'GET', '/api/admin/overview.php');
     check('tableau : vue d\'ensemble refusée sans connexion (401)', $r['status'] === 401);
@@ -304,6 +305,7 @@ try {
     check('fiche : identité et dates présentes', $r['status'] === 200 && ($f['identity']['email'] ?? '') === 'alice2@test.local' && isset($f['dates']['created_at']));
     check('fiche : fréquence calculée', isset($f['frequency']['active_days_7']) && isset($f['frequency']['streak_days']) && isset($f['frequency']['logins_per_week_90']));
     check('fiche : état lisible', ($f['state'] ?? '') === 'Actif');
+    check('fiche : dernière visite présente (ou absente si aucune page vue)', array_key_exists('last_visit', $f['dates'] ?? []));
     check('fiche : chronologie des événements', count($f['chronology'] ?? []) >= 1);
     check('fiche : actions par type', count($f['actions90'] ?? []) >= 1);
     check('fiche : aucune adresse IP ni paramètre d\'URL', !str_contains(json_encode($f), '127.0.0.1'));
