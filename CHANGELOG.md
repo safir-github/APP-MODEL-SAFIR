@@ -4,6 +4,14 @@ Toutes les améliorations du modèle, de la plus récente à la plus ancienne.
 Format : date, puis ce qui a changé et pourquoi. Les reports dans les projets sont notés
 sous « Reporté dans ».
 
+## 2026-11-02 (rôle administrateur)
+
+- Colonne `users.is_admin`, attribuée uniquement en ligne de commande (`api/cli/make_admin.php`), jamais depuis le web.
+- `require_admin()` vérifie le rôle côté serveur ; `api/admin/users.php` liste les comptes (réservé aux admins).
+- Page `/admin` et lien « Administration » dans « Mon compte », affichés seulement si `is_admin`.
+- Aucune adresse e-mail dans le code : chaque application désigne son administrateur par la commande.
+- Tests : 50 contrôles. Voir docs/AUTH.md.
+
 ## 2026-11-01 (procédure de nouveau projet)
 
 - `docs/NOUVEAU_PROJET.md` : clonage de `main`, suppression du `.git` du modèle, premier commit de l'application,
