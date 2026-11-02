@@ -1,6 +1,7 @@
 ---
 import '../styles/global.css';
 import DeviceFrame from '../components/DeviceFrame.astro';
+import ConsentBanner from '../components/ConsentBanner.astro';
 import TabBar from '../components/TabBar.astro';
 const { title = 'Mon app', current = '/', tabs = [{ href: '/', label: 'Accueil' }, { href: '/compte', label: 'Mon compte' }] } = Astro.props;
 ---
@@ -22,6 +23,7 @@ const { title = 'Mon app', current = '/', tabs = [{ href: '/', label: 'Accueil' 
         <slot />
       </div>
       <TabBar slot="tabs" tabs={tabs} current={current} />
+      <div slot="overlay"><ConsentBanner /></div>
     </DeviceFrame>
   </body>
 </html>

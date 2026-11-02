@@ -4,17 +4,155 @@ import AppLayout from '../layouts/AppLayout.astro';
 <AppLayout title="Administration" current="/compte" tabs={[{ href: '/', label: 'Accueil' }, { href: '/compte', label: 'Mon compte' }]}>
   <div id="auth-gate" class="text-sm" style="color: var(--text-2)">Chargement…</div>
   <div id="admin-root" hidden>
-    <h1 class="font-serif text-3xl font-semibold mb-2" style="font-family: var(--serif)">Administration</h1>
-    <p class="text-sm mb-6" style="color: var(--text-2)">Comptes de l'application</p>
+    <a href="/compte" class="text-sm" style="color: var(--copper)">← Mon compte</a>
+    <h1 class="font-serif text-3xl font-semibold mt-4 mb-6" style="font-family: var(--serif)">Administration</h1>
     <div id="admin-error" hidden class="mb-4 rounded-xl px-4 py-3 text-sm" style="color: var(--neg)"></div>
-    <ul id="user-list" class="space-y-3"></ul>
+
+    <section class="mb-8">
+      <h2 class="font-semibold mb-3">Vue d'ensemble</h2>
+      <div id="overview" class="grid grid-cols-2 gap-3 text-sm"></div>
+      <h3 class="font-semibold mt-5 mb-2 text-sm">Pages les plus vues (30 jours)</h3>
+      <ul id="top-paths" class="text-sm space-y-1"></ul>
+      <h3 class="font-semibold mt-5 mb-2 text-sm">Appareils (30 jours)</h3>
+      <ul id="devices" class="text-sm space-y-1"></ul>
+    </section>
+
+    <section class="mb-8">
+      <h2 class="font-semibold mb-3">Comptes</h2>
+      <form id="user-search" class="flex gap-2 mb-3">
+        <input name="q" type="search" placeholder="E-mail ou nom" class="flex-1 min-w-0 h-11 rounded-2xl px-4 bg-transparent border" style="border-color: var(--line-2)" />
+        <button type="submit" class="h-11 px-4 rounded-2xl border" style="border-color: var(--line-2)">Chercher</button>
+      </form>
+      <ul id="user-list" class="space-y-2 text-sm"></ul>
+    </section>
+
+    <section class="mb-8">
+      <h2 class="font-semibold mb-3">Activité</h2>
+      <form id="event-filter" class="grid grid-cols-2 gap-2 mb-3 text-sm">
+        <select name="type" class="min-w-0 h-11 rounded-2xl px-3 bg-transparent border" style="border-color: var(--line-2)">
+          <option value="">Tous les types</option>
+          <option value="page_view">Pages vues</option>
+          <option value="signup">Inscriptions</option>
+          <option value="login">Connexions</option>
+          <option value="logout">Déconnexions</option>
+        </select>
+        <select name="days" class="min-w-0 h-11 rounded-2xl px-3 bg-transparent border" style="border-color: var(--line-2)">
+          <option value="1">24 heures</option>
+          <option value="7" selected>7 jours</option>
+          <option value="30">30 jours</option>
+          <option value="90">90 jours</option>
+        </select>
+        <input name="user_id" type="text" placeholder="Identifiant de compte (optionnel)" class="col-span-2 min-w-0 h-11 rounded-2xl px-4 bg-transparent border" style="border-color: var(--line-2)" />
+        <button type="submit" class="col-span-2 h-11 rounded-2xl border" style="border-color: var(--line-2)">Afficher</button>
+      </form>
+      <ul id="event-list" class="space-y-2 text-sm"></ul>
+    </section>
+
+    <section class="mb-8">
+      <h2 class="font-semibold mb-3">Journal des accès</h2>
+      <p class="text-xs mb-3" style="color: var(--text-3)">Chaque consultation des données est notée ici.</p>
+      <ul id="journal" class="space-y-2 text-xs"></ul>
+    </section>
   </div>
 </AppLayout>
 
 <script>
   import { api } from '../scripts/api';
 
-  // Garde côté interface : seul l'affichage dépend du rôle. La liste est protégée par le serveur (api/admin/users.php).
+  // Éléments construits avec textContent uniquement (aucune donnée n'est interprétée comme HTML)
+  function item(lines: string[], secondary = false): HTMLLIElement {
+    const li = document.createElement('li');
+    li.className = 'rounded-2xl px-4 py-3 border';
+    li.style.borderColor = 'var(--line-2)';
+    lines.forEach((text, i) => {
+      const line = document.createElement('div');
+      line.textContent = text;
+      if (i > 0 || secondary) line.style.color = 'var(--text-2)';
+      if (i === 0) line.className = 'font-semibold';
+      li.appendChild(line);
+    });
+    return li;
+  }
+
+  function fillList(id: string, items: HTMLElement[], empty: string) {
+    const list = document.getElementById(id) as HTMLElement;
+    list.replaceChildren(...(items.length ? items : [item([empty], true)]));
+  }
+
+  function showError(message: string) {
+    const el = document.getElementById('admin-error') as HTMLElement;
+    el.textContent = message;
+    el.hidden = false;
+  }
+
+  const labels: Record<string, string> = { page_view: 'Page vue', signup: 'Inscription', login: 'Connexion', logout: 'Déconnexion' };
+  const date = (unix: number) => new Date(unix * 1000).toLocaleString('fr-FR');
+
+  async function loadOverview() {
+    const { ok, data } = await api.adminOverview();
+    if (!ok) return showError(data?.error || 'Vue d’ensemble indisponible.');
+    const cards: [string, string][] = [
+      ['Comptes', String(data.accounts)],
+      ['Actifs 24 h', String(data.active['1'])],
+      ['Actifs 7 jours', String(data.active['7'])],
+      ['Inscriptions 7 jours', String(data.signups['7'])],
+      ['Inscriptions 30 jours', String(data.signups['30'])],
+      ['Visites 7 jours', String(data.visits['7'])],
+    ];
+    document.getElementById('overview')!.replaceChildren(...cards.map(([label, value]) => {
+      const card = document.createElement('div');
+      card.className = 'rounded-2xl px-4 py-3 border';
+      card.style.borderColor = 'var(--line-2)';
+      const v = document.createElement('div');
+      v.className = 'font-serif text-2xl font-semibold';
+      v.textContent = value;
+      const l = document.createElement('div');
+      l.style.color = 'var(--text-2)';
+      l.textContent = label;
+      card.append(v, l);
+      return card;
+    }));
+    fillList('top-paths', data.topPaths30.map((p: any) => item([`${p.path || '/'} · ${p.n}`])), 'Aucune visite enregistrée (consentement requis).');
+    const deviceLabel: Record<string, string> = { mobile: 'Mobile', desktop: 'Ordinateur' };
+    fillList('devices', data.devices30.map((d: any) => item([`${deviceLabel[d.device] || d.device} · ${d.n}`])), 'Aucune donnée.');
+  }
+
+  async function loadUsers(q = '') {
+    const { ok, data } = await api.adminUsers(q);
+    if (!ok) return showError(data?.error || 'Liste indisponible.');
+    fillList('user-list', data.users.map((u: any) => {
+      const lines = [`${u.name || '(sans nom)'}${u.is_admin ? ' · admin' : ''}`, u.email,
+        `Inscrit : ${u.created_at} · Dernière connexion : ${u.last_login_at ? date(u.last_login_at) : 'jamais'}`];
+      const el = item(lines);
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'mt-2 text-xs underline';
+      btn.style.color = 'var(--copper)';
+      btn.textContent = 'Voir l’activité de ce compte';
+      btn.addEventListener('click', () => loadEvents({ user_id: u.id, days: '90' }));
+      el.appendChild(btn);
+      return el;
+    }), 'Aucun compte.');
+  }
+
+  async function loadEvents(params: Record<string, string>) {
+    const { ok, data } = await api.adminEvents(params);
+    if (!ok) return showError(data?.error || 'Activité indisponible.');
+    fillList('event-list', data.events.map((e: any) => item([
+      `${labels[e.type] || e.type} · ${e.path || ''}`,
+      `${date(e.created_at)} · ${e.device === 'mobile' ? 'mobile' : 'ordinateur'}${e.email ? ' · ' + e.email : ''}`,
+    ])), 'Aucun événement pour ces critères.');
+  }
+
+  async function loadJournal() {
+    const { ok, data } = await api.adminJournal();
+    if (!ok) return showError(data?.error || 'Journal indisponible.');
+    fillList('journal', data.entries.map((j: any) => item([
+      `${j.action}${j.target ? ' · ' + j.target : ''}`,
+      `${date(j.created_at)} · ${j.admin_email || 'inconnu'}`,
+    ])), 'Aucun accès enregistré.');
+  }
+
   (async () => {
     const me = await api.me();
     if (!me.data?.user) {
@@ -28,31 +166,19 @@ import AppLayout from '../layouts/AppLayout.astro';
     document.getElementById('auth-gate')?.setAttribute('hidden', '');
     document.getElementById('admin-root')?.removeAttribute('hidden');
 
-    const { ok, data } = await api.adminUsers();
-    const errorEl = document.getElementById('admin-error') as HTMLElement;
-    if (!ok) {
-      errorEl.textContent = data?.error || 'Liste indisponible.';
-      errorEl.hidden = false;
-      return;
-    }
-    const list = document.getElementById('user-list') as HTMLElement;
-    for (const user of data.users) {
-      const li = document.createElement('li');
-      li.className = 'rounded-2xl px-4 py-3 border';
-      li.style.borderColor = 'var(--line-2)';
-      const name = document.createElement('div');
-      name.className = 'font-semibold text-sm';
-      name.textContent = (user.name || '(sans nom)') + (user.is_admin ? ' · admin' : '');
-      const mail = document.createElement('div');
-      mail.className = 'text-sm';
-      mail.style.color = 'var(--text-2)';
-      mail.textContent = user.email;
-      const date = document.createElement('div');
-      date.className = 'text-xs';
-      date.style.color = 'var(--text-3)';
-      date.textContent = 'Inscrit le ' + user.created_at;
-      li.append(name, mail, date);
-      list.appendChild(li);
-    }
+    await Promise.all([loadOverview(), loadUsers(), loadEvents({ days: '7' }), loadJournal()]);
+
+    document.getElementById('user-search')?.addEventListener('submit', (e) => {
+      e.preventDefault();
+      loadUsers(String(new FormData(e.target as HTMLFormElement).get('q') || '').trim());
+    });
+    document.getElementById('event-filter')?.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const fd = new FormData(e.target as HTMLFormElement);
+      const params: Record<string, string> = { days: String(fd.get('days') || '7') };
+      if (fd.get('type')) params.type = String(fd.get('type'));
+      if (fd.get('user_id')) params.user_id = String(fd.get('user_id')).trim();
+      loadEvents(params).then(loadJournal);
+    });
   })();
 </script>

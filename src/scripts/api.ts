@@ -40,7 +40,15 @@ export const api = {
     request('/api/auth/update_profile.php', { method: 'POST', body: JSON.stringify({ name }) }),
   requestEmailChange: (password: string, email: string) =>
     request('/api/auth/request_email_change.php', { method: 'POST', body: JSON.stringify({ password, email }) }),
-  adminUsers: () => request('/api/admin/users.php'),
+  adminUsers: (q = '') => request(`/api/admin/users.php?q=${encodeURIComponent(q)}`),
+  adminOverview: () => request('/api/admin/overview.php'),
+  adminEvents: (params: Record<string, string>) =>
+    request(`/api/admin/events.php?${new URLSearchParams(params).toString()}`),
+  adminJournal: () => request('/api/admin/journal.php'),
+  consent: (accept: boolean) =>
+    request('/api/consent.php', { method: 'POST', body: JSON.stringify({ accept }) }),
+  track: (path: string) =>
+    request('/api/track.php', { method: 'POST', body: JSON.stringify({ path }) }),
   confirmEmail: (token: string) =>
     request('/api/auth/confirm_email.php', { method: 'POST', body: JSON.stringify({ token }) }),
 };
