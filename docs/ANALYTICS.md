@@ -36,3 +36,12 @@ Toute nouvelle donnée collectée (nouvel événement, nouveau champ, nouveau se
 1. mettre à jour `src/pages/confidentialite.astro` et `docs/LEGAL.md` avant la mise en production ;
 2. vérifier que la donnée n'est pas un identifiant, une adresse IP ni un contenu saisi ;
 3. ajouter le contrôle correspondant dans `tests/run.php`.
+
+## Notification de l'administrateur
+- Tâche planifiée `job_admin_activity_digest` : un e-mail **par jour** à chaque administrateur (règle 6 : une notification
+  par personne et par 24 h), avec des chiffres seulement (comptes actifs, inscriptions, connexions, pages vues).
+- Aucune adresse ni donnée individuelle dans l'e-mail. Le détail se consulte dans `/admin`.
+- Choix de conception : un résumé quotidien plutôt qu'un e-mail à chaque connexion, pour éviter le spam et la surveillance
+  individuelle. Un envoi immédiat par utilisateur serait une décision distincte, à valider.
+- Les adresses reçoivent le résumé via `send_mail()` ; la délivrabilité dépend de SPF/DKIM (docs/EMAIL.md).
+- En test, `mail()` ne fonctionne pas : le test vérifie seulement que la tâche tourne et renvoie ses chiffres.

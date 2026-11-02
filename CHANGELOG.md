@@ -4,6 +4,10 @@ Toutes les améliorations du modèle, de la plus récente à la plus ancienne.
 Format : date, puis ce qui a changé et pourquoi. Les reports dans les projets sont notés
 sous « Reporté dans ».
 
+## 2026-11-02 (résumé quotidien administrateur)
+
+- Résumé d'activité des dernières 24 h envoyé chaque jour à chaque administrateur (chiffres seulement), via la tâche planifiée. Voir docs/ANALYTICS.md.
+
 ## 2026-11-02 (conservation du journal administrateur)
 
 - Le journal des accès administrateur est purgé à 90 jours, comme les événements (choix par défaut, à confirmer).

@@ -280,6 +280,7 @@ try {
     check('tâche planifiée : refusée par le web (403)', $r['status'] === 403);
 
     $out = shell_exec('APP_DB_PATH=' . escapeshellarg($dbFile) . ' php ' . escapeshellarg("$root/api/cron/run.php"));
+    check('notification administrateur : résumé 24 h dans la tâche planifiée', str_contains((string)$out, '"admin_digest"') && str_contains((string)$out, '"active_accounts"'));
     check('événements : purge des 90 jours dans la tâche planifiée', str_contains((string)$out, '"purge_events"'));
     check('tâche planifiée : exécutée en ligne de commande', str_contains((string)$out, '"daily_reminders"'));
 } catch (Throwable $e) {

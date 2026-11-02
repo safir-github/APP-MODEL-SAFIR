@@ -44,3 +44,33 @@ function job_purge_events(): array {
     $stmt->execute([time() - 90 * 86400]);
     return ['deleted' => $events, 'admin_log_deleted' => $stmt->rowCount()];
 }
+
+// Résumé d'activité envoyé à chaque administrateur, une fois par 24 h (règle 6 de CLAUDE.md : un e-mail par personne et par jour).
+// Chiffres seulement : aucune adresse ni donnée individuelle dans l'e-mail. Voir docs/ANALYTICS.md.
+function job_admin_activity_digest(): array {
+    $pdo = db();
+    $since = time() - 86400;
+    $stats = [
+        'active_accounts' => (int)$pdo->query("SELECT COUNT(DISTINCT user_id) FROM events WHERE user_id IS NOT NULL AND created_at >= $since")->fetchColumn(),
+        'signups' => (int)$pdo->query("SELECT COUNT(*) FROM events WHERE type = 'signup' AND created_at >= $since")->fetchColumn(),
+        'logins' => (int)$pdo->query("SELECT COUNT(*) FROM events WHERE type = 'login' AND created_at >= $since")->fetchColumn(),
+        'visits' => (int)$pdo->query("SELECT COUNT(*) FROM events WHERE type = 'page_view' AND created_at >= $since")->fetchColumn(),
+    ];
+
+    $admins = $pdo->query('SELECT id, email FROM users WHERE is_admin = 1')->fetchAll();
+    $sent = 0;
+    foreach ($admins as $admin) {
+        if (notified_within_24h($admin['id'], 'admin_digest')) continue;
+        $text = "Bonjour,\n\nActivité des dernières 24 heures :\n"
+              . "- comptes actifs : {$stats['active_accounts']}\n"
+              . "- nouvelles inscriptions : {$stats['signups']}\n"
+              . "- connexions : {$stats['logins']}\n"
+              . "- pages vues (visiteurs ayant accepté la mesure d'audience) : {$stats['visits']}\n\n"
+              . "Détail dans le tableau de bord : " . APP_URL . "/admin";
+        if (send_mail($admin['email'], 'Activité de votre application (24 h)', $text)) {
+            mark_notified($admin['id'], 'admin_digest');
+            $sent++;
+        }
+    }
+    return ['administrators' => count($admins), 'sent' => $sent] + $stats;
+}
