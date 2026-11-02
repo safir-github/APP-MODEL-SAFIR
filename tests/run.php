@@ -268,6 +268,31 @@ try {
     check('tableau : activité refusée sans droits (401)', $r['status'] === 401);
     shell_exec($env . escapeshellarg(PHP_BINARY) . ' ' . escapeshellarg("$root/api/cli/make_admin.php") . ' ' . escapeshellarg('alice2@test.local') . ' --revoke 2>&1');
 
+    // --- Classification des comptes (account_kind) ---
+    $kindDefault = $db->query("SELECT account_kind FROM users WHERE email = 'alice2@test.local'")->fetchColumn();
+    check('catégorie : défaut « reel »', $kindDefault === 'reel');
+    $carolId = $db->query("SELECT id FROM users WHERE email = 'carol@test.local'")->fetchColumn();
+    $r = request($a, 'POST', '/api/admin/account_kind.php', ['user_id' => $carolId, 'kind' => 'test']);
+    check('catégorie : changement refusé à un compte ordinaire (403)', $r['status'] === 403);
+    shell_exec($env . escapeshellarg(PHP_BINARY) . ' ' . escapeshellarg("$root/api/cli/make_admin.php") . ' ' . escapeshellarg('alice2@test.local') . ' 2>&1');
+    $accountsAvant = request($a, 'GET', '/api/admin/overview.php')['json']['accounts'] ?? -1;
+    $r = request($a, 'POST', '/api/admin/account_kind.php', ['user_id' => $carolId, 'kind' => 'test']);
+    check('catégorie : changement accepté (200)', $r['status'] === 200 && ($r['json']['kind'] ?? '') === 'test');
+    $accountsApres = request($a, 'GET', '/api/admin/overview.php')['json']['accounts'] ?? -2;
+    check('catégorie : compte non « reel » exclu des chiffres', $accountsApres === $accountsAvant - 1);
+    $r = request($a, 'POST', '/api/admin/account_kind.php', ['user_id' => $carolId, 'kind' => 'bidon']);
+    check('catégorie : valeur inconnue refusée (400)', $r['status'] === 400);
+    $r = request($a, 'POST', '/api/admin/account_kind.php', ['user_id' => 'inexistant', 'kind' => 'test']);
+    check('catégorie : compte inconnu (404)', $r['status'] === 404);
+    $r = request($a, 'GET', '/api/admin/users.php?reel=1');
+    $emails = array_column($r['json']['users'] ?? [], 'email');
+    check('catégorie : filtre masque les comptes non « reel »', !in_array('carol@test.local', $emails, true) && in_array('alice2@test.local', $emails, true));
+    $logged = (int)$db->query("SELECT COUNT(*) FROM admin_log WHERE action = 'set_account_kind'")->fetchColumn();
+    check('catégorie : changement tracé dans admin_log', $logged >= 1);
+    $r = request($a, 'POST', '/api/admin/account_kind.php', ['user_id' => $carolId, 'kind' => 'reel']);
+    check('catégorie : retour à « reel »', $r['status'] === 200);
+    shell_exec($env . escapeshellarg(PHP_BINARY) . ' ' . escapeshellarg("$root/api/cli/make_admin.php") . ' ' . escapeshellarg('alice2@test.local') . ' --revoke 2>&1');
+
     // --- Déconnexion ---
     $r = request($a, 'POST', '/api/auth/logout.php');
     check('déconnexion : 200', $r['status'] === 200);

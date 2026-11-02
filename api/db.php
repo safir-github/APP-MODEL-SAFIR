@@ -83,6 +83,12 @@ function db_init_schema(PDO $pdo): void {
         $pdo->exec("ALTER TABLE users ADD COLUMN is_admin INTEGER NOT NULL DEFAULT 0");
     } catch (Throwable $e) {}
 
+    // Catégorie du compte : reel (défaut), test, agent ou interne. Seuls les comptes « reel » sont comptés dans les chiffres.
+    // Les événements des autres comptes restent dans events et restent consultables.
+    try {
+        $pdo->exec("ALTER TABLE users ADD COLUMN account_kind TEXT NOT NULL DEFAULT 'reel'");
+    } catch (Throwable $e) {}
+
     // Dernière connexion, pour le tableau de bord administrateur
     try {
         $pdo->exec("ALTER TABLE users ADD COLUMN last_login_at INTEGER");
