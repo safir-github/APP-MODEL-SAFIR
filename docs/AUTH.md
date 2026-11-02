@@ -36,3 +36,14 @@ ne dépend pas du nettoyage des fichiers de session.
 - `api/auth/me.php` renvoie `is_admin` : le front s'en sert seulement pour **afficher** le lien « Administration » (page `/admin`).
   Cacher un élément n'est pas une protection : seule la vérification serveur protège les données.
 - Une application ajoute ses propres pages admin en créant un endpoint dans `api/admin/` qui commence par `require_admin();`.
+
+## Décisions de conception (à relire avant de reprendre le modèle)
+- **Confirmation de l'adresse à l'inscription : non incluse.** L'inscription crée le compte immédiatement. La confirmation
+  par lien existe seulement pour **changer** d'adresse (`request_email_change.php`, `confirm_email.php`). Une application qui
+  exige la confirmation à l'inscription doit l'ajouter : même principe (jeton à usage unique, empreinte seule, lien valable 1 h).
+  Raison : un parcours d'inscription sans étape supplémentaire, sauf décision contraire du projet.
+- **Mot de passe oublié : la page `/reinitialiser` est fournie** par le modèle (`src/pages/reinitialiser.astro`), avec
+  `/mot-de-passe-oublie`. Une application peut modifier leur apparence, pas les supprimer.
+- **Limitation des tentatives** : présente sur connexion, mot de passe oublié, changement de mot de passe, suppression
+  de compte et changement d'adresse. Toute application reprenant d'anciens endpoints (par exemple `update_password.php`)
+  doit appliquer la même limite (`rate_limited()` / `record_attempt()`).

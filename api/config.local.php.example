@@ -3,3 +3,5 @@
 // define('DB_PATH', '/home/USER/var/mon-app/app.db');   // HORS public_html en production
 // define('APP_URL', 'https://mon-app.exemple.fr');
 // define('MAIL_FROM', 'Mon App <contact@mon-app.exemple.fr>');
+// Les tests (tests/run.php) utilisent une base temporaire choisie par la variable d'environnement APP_DB_PATH.
+// Ne pas la définir en production : elle remplace DB_PATH uniquement si DB_PATH n'est pas défini ici.

@@ -12,7 +12,11 @@ du modèle de celui de l'application. À suivre dans l'ordre. Ne pas sauter d'é
 - Ne jamais pousser une application vers le dépôt `APP-MODEL-SAFIR`.
 
 ## Étape 1 : choisir la version du modèle
-- Branche à utiliser : **`main`** (la version à jour, identique à la branche de travail la plus récente).
+- Branche à utiliser : **`main`**. C'est la version stable, celle que tout nouvel agent doit cloner.
+- Les branches `1.x` (par exemple `1.1`) sont les branches de travail du modèle : elles reçoivent les prochaines
+  modifications, puis sont fusionnées dans `main` par le responsable du modèle. Ne pas cloner une branche `1.x`
+  pour démarrer un projet, sauf demande explicite.
+- Vérifier que `main` contient bien la version attendue (après fusion) avant de cloner.
 - Noter le numéro de version à copier, c'est-à-dire le hash court du dernier commit de `main` :
 
 ```bash
