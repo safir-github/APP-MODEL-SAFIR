@@ -305,6 +305,7 @@ try {
     check('fiche : identité et dates présentes', $r['status'] === 200 && ($f['identity']['email'] ?? '') === 'alice2@test.local' && isset($f['dates']['created_at']));
     check('fiche : fréquence calculée', isset($f['frequency']['active_days_7']) && isset($f['frequency']['streak_days']) && isset($f['frequency']['logins_per_week_90']));
     check('fiche : état lisible', ($f['state'] ?? '') === 'Actif');
+    check('fiche : nombre de connexions sur 90 jours', isset($f['frequency']['logins90']));
     check('fiche : dernière visite présente (ou absente si aucune page vue)', array_key_exists('last_visit', $f['dates'] ?? []));
     check('fiche : chronologie des événements', count($f['chronology'] ?? []) >= 1);
     check('fiche : actions par type', count($f['actions90'] ?? []) >= 1);

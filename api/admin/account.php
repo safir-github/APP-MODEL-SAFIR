@@ -81,6 +81,7 @@ json_out([
         'active_days_30' => $activeDays(30),
         'active_days_90' => $activeDays(90),
         'logins_last_7_days' => $loginsWeek,
+        'logins90' => $logins90,
         'logins_per_week_90' => round($logins90 / (90 / 7), 1),
         'streak_days' => $streak,
     ],

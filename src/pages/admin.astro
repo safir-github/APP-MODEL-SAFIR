@@ -1,246 +1,361 @@
 ---
 import AppLayout from '../layouts/AppLayout.astro';
 ---
-<AppLayout title="Administration" current="/compte" tabs={[{ href: '/', label: 'Accueil' }, { href: '/compte', label: 'Mon compte' }]}>
+<AppLayout title="Tableau de bord" current="/compte" tabs={[{ href: '/', label: 'Accueil' }, { href: '/compte', label: 'Mon compte' }]}>
   <div id="auth-gate" class="text-sm" style="color: var(--text-2)">Chargement…</div>
-  <div id="admin-root" hidden>
-    <a href="/compte" class="text-sm" style="color: var(--copper)">← Mon compte</a>
-    <h1 class="font-serif text-3xl font-semibold mt-4 mb-6" style="font-family: var(--serif)">Administration</h1>
-    <div id="admin-error" hidden class="mb-4 rounded-xl px-4 py-3 text-sm" style="color: var(--neg)"></div>
+  <div id="admin-root" class="d-page" hidden>
+    <a href="/compte" class="d-btn-link">← Mon compte</a>
+    <div>
+      <h1 class="font-serif text-3xl font-semibold" style="font-family: var(--serif)">Tableau de bord</h1>
+      <p class="d-muted mt-1">Vue d'ensemble de l'application</p>
+    </div>
+    <div id="admin-error" class="d-card" hidden style="color: var(--neg)"></div>
 
-    <section class="mb-8">
-      <h2 class="font-semibold mb-3">Vue d'ensemble</h2>
-      <div id="overview" class="grid grid-cols-2 gap-3 text-sm"></div>
-      <h3 class="font-semibold mt-5 mb-2 text-sm">Pages les plus vues (30 jours)</h3>
-      <ul id="top-paths" class="text-sm space-y-1"></ul>
-      <h3 class="font-semibold mt-5 mb-2 text-sm">Appareils (30 jours)</h3>
-      <ul id="devices" class="text-sm space-y-1"></ul>
-      <h3 class="font-semibold mt-5 mb-2 text-sm">14 derniers jours</h3>
-      <ul id="daily" class="text-sm space-y-2"></ul>
+    <section class="d-kpis" aria-label="Chiffres clés">
+      <div class="d-kpi"><div id="kpi-accounts" class="d-kpi-value">–</div><div class="d-kpi-label">Comptes</div></div>
+      <div class="d-kpi"><div id="kpi-active" class="d-kpi-value">–</div><div class="d-kpi-label">Actifs sur 7 jours</div><div id="delta-active" class="d-delta"></div></div>
+      <div class="d-kpi"><div id="kpi-signups" class="d-kpi-value">–</div><div class="d-kpi-label">Inscriptions sur 7 jours</div><div id="delta-signups" class="d-delta"></div></div>
+      <div class="d-kpi"><div id="kpi-visits" class="d-kpi-value">–</div><div class="d-kpi-label">Visites sur 7 jours</div><div id="delta-visits" class="d-delta"></div></div>
     </section>
 
-    <section class="mb-8">
-      <h2 class="font-semibold mb-3">Comptes</h2>
-      <form id="user-search" class="flex gap-2 mb-3">
-        <input name="q" type="search" placeholder="E-mail ou nom" class="flex-1 min-w-0 h-11 rounded-2xl px-4 bg-transparent border" style="border-color: var(--line-2)" />
-        <button type="submit" class="h-11 px-4 rounded-2xl border" style="border-color: var(--line-2)">Chercher</button>
+    <section class="d-card" aria-label="Évolution sur 14 jours">
+      <div class="d-card-head"><b>14 derniers jours</b><span class="d-muted">visites et inscriptions</span></div>
+      <svg id="chart" class="d-chart" viewBox="0 0 320 140" preserveAspectRatio="none" role="img" aria-label="Courbe des visites et des inscriptions"></svg>
+      <div class="d-legend"><span style="--c: var(--copper)">Visites</span><span style="--c: var(--pos)">Inscriptions</span></div>
+    </section>
+
+    <section class="d-card">
+      <div class="d-card-head"><b>Pages les plus vues</b><span class="d-muted">30 jours</span></div>
+      <div id="top-paths" class="d-list"></div>
+      <div class="d-card-head mt-4"><b>Appareils</b><span class="d-muted">30 jours</span></div>
+      <div id="devices" class="d-list"></div>
+    </section>
+
+    <section class="d-card">
+      <div class="d-card-head"><b>Comptes</b></div>
+      <form id="user-search" class="d-row mb-3">
+        <input name="q" type="search" placeholder="E-mail ou nom" class="d-field" />
+        <button type="submit" class="d-btn">Chercher</button>
       </form>
-      <label class="flex items-center gap-2 text-sm mb-3">
+      <label class="d-row mb-3 d-muted">
         <input id="reel-only" type="checkbox" checked />
         Masquer les comptes non réels (test, agent, interne)
       </label>
-      <ul id="user-list" class="space-y-2 text-sm"></ul>
+      <div id="user-list" class="d-list"></div>
     </section>
 
-    <section id="account-panel" class="mb-8" hidden>
-      <div class="flex items-center justify-between mb-3">
-        <h2 class="font-semibold">Fiche du compte</h2>
-        <button id="account-close" type="button" class="text-sm underline" style="color: var(--copper)">Fermer</button>
-      </div>
-      <ul id="account-detail" class="space-y-2 text-sm"></ul>
+    <section id="account-panel" class="d-card" hidden>
+      <div class="d-card-head"><b>Fiche du compte</b><button id="account-close" type="button" class="d-btn-link">Fermer</button></div>
+      <div id="account-detail" class="d-list"></div>
     </section>
 
-    <section class="mb-8">
-      <h2 class="font-semibold mb-3">Activité</h2>
-      <form id="event-filter" class="grid grid-cols-2 gap-2 mb-3 text-sm">
-        <select name="type" class="min-w-0 h-11 rounded-2xl px-3 bg-transparent border" style="border-color: var(--line-2)">
-          <option value="">Tous les types</option>
-          <option value="page_view">Pages vues</option>
+    <section class="d-card">
+      <div class="d-card-head"><b>Activité</b></div>
+      <form id="event-filter" class="d-list mb-3">
+        <select name="type" class="d-field">
+          <option value="">Toutes les actions</option>
+          <option value="page_view">Visites de pages</option>
           <option value="signup">Inscriptions</option>
           <option value="login">Connexions</option>
           <option value="logout">Déconnexions</option>
         </select>
-        <select name="days" class="min-w-0 h-11 rounded-2xl px-3 bg-transparent border" style="border-color: var(--line-2)">
-          <option value="1">24 heures</option>
-          <option value="7" selected>7 jours</option>
-          <option value="30">30 jours</option>
-          <option value="90">90 jours</option>
+        <select name="days" class="d-field">
+          <option value="1">Dernières 24 heures</option>
+          <option value="7" selected>7 derniers jours</option>
+          <option value="30">30 derniers jours</option>
+          <option value="90">90 derniers jours</option>
         </select>
-        <input name="user_id" type="text" placeholder="Identifiant de compte (optionnel)" class="col-span-2 min-w-0 h-11 rounded-2xl px-4 bg-transparent border" style="border-color: var(--line-2)" />
-        <button type="submit" class="col-span-2 h-11 rounded-2xl border" style="border-color: var(--line-2)">Afficher</button>
+        <button type="submit" class="d-btn d-btn-primary">Afficher</button>
       </form>
-      <ul id="event-list" class="space-y-2 text-sm"></ul>
+      <div id="event-list" class="d-list"></div>
     </section>
 
-    <section class="mb-8">
-      <h2 class="font-semibold mb-3">Journal des accès</h2>
-      <p class="text-xs mb-3" style="color: var(--text-3)">Chaque consultation des données est notée ici.</p>
-      <ul id="journal" class="space-y-2 text-xs"></ul>
+    <section class="d-card">
+      <div class="d-card-head"><b>Ce que fait l'équipe</b><span class="d-muted">journal des accès</span></div>
+      <div id="journal" class="d-list"></div>
     </section>
+  </div>
+
+  <div slot="overlay">
+    <div id="kind-sheet" class="d-sheet" hidden role="dialog" aria-modal="true" aria-labelledby="sheet-title">
+      <div class="d-sheet-backdrop" data-sheet-close></div>
+      <div class="d-sheet-panel">
+        <div class="d-grab"></div>
+        <h2 id="sheet-title" class="font-semibold">Changer la catégorie</h2>
+        <p id="sheet-name" class="d-muted"></p>
+        <div class="d-options" role="radiogroup" aria-label="Catégorie">
+          <label class="d-option"><input type="radio" name="kind" value="reel" /> Réel : compté dans les chiffres</label>
+          <label class="d-option"><input type="radio" name="kind" value="test" /> Test : exclu des chiffres</label>
+          <label class="d-option"><input type="radio" name="kind" value="agent" /> Agent : exclu des chiffres</label>
+          <label class="d-option"><input type="radio" name="kind" value="interne" /> Interne : exclu des chiffres</label>
+        </div>
+        <p class="d-muted">Ce changement est tracé dans le journal des accès.</p>
+        <div class="d-row">
+          <button type="button" class="d-btn" data-sheet-close>Annuler</button>
+          <button id="sheet-confirm" type="button" class="d-btn d-btn-primary">Confirmer</button>
+        </div>
+      </div>
+    </div>
   </div>
 </AppLayout>
 
 <script>
   import { api } from '../scripts/api';
 
-  // Éléments construits avec textContent uniquement (aucune donnée n'est interprétée comme HTML)
-  function item(lines: string[], secondary = false): HTMLLIElement {
-    const li = document.createElement('li');
-    li.className = 'rounded-2xl px-4 py-3 border';
-    li.style.borderColor = 'var(--line-2)';
-    lines.forEach((text, i) => {
-      const line = document.createElement('div');
-      line.textContent = text;
-      if (i > 0 || secondary) line.style.color = 'var(--text-2)';
-      if (i === 0) line.className = 'font-semibold';
-      li.appendChild(line);
-    });
-    return li;
-  }
-
-  function fillList(id: string, items: HTMLElement[], empty: string) {
-    const list = document.getElementById(id) as HTMLElement;
-    list.replaceChildren(...(items.length ? items : [item([empty], true)]));
-  }
+  // Tout le contenu est écrit avec textContent ou des éléments créés : aucune donnée n'est interprétée comme HTML.
+  const $ = (id: string) => document.getElementById(id) as HTMLElement;
 
   function showError(message: string) {
-    const el = document.getElementById('admin-error') as HTMLElement;
+    const el = $('admin-error');
     el.textContent = message;
     el.hidden = false;
   }
 
-  const labels: Record<string, string> = { page_view: 'Page vue', signup: 'Inscription', login: 'Connexion', logout: 'Déconnexion' };
-  const date = (unix: number) => new Date(unix * 1000).toLocaleString('fr-FR');
+  function line(text: string, extra = ''): HTMLDivElement {
+    const d = document.createElement('div');
+    d.className = extra ? `d-item-${extra}` : 'd-item-sub';
+    d.textContent = text;
+    return d;
+  }
+
+  function card(title: string, lines: string[]): HTMLDivElement {
+    const el = document.createElement('div');
+    el.className = 'd-item';
+    el.appendChild(line(title, 'title'));
+    lines.forEach((t) => el.appendChild(line(t)));
+    return el;
+  }
+
+  function setList(id: string, items: HTMLElement[], empty: string) {
+    $(id).replaceChildren(...(items.length ? items : [card(empty, [])]));
+  }
+
+  // ----- Dates et phrases -----
+  const pad = (n: number) => String(n).padStart(2, '0');
+  const hm = (d: Date) => `${d.getHours()} h ${pad(d.getMinutes())}`;
+  function when(unix: number): string {
+    const d = new Date(unix * 1000);
+    const today = new Date();
+    const yesterday = new Date(Date.now() - 86400000);
+    const sameDay = (a: Date, b: Date) => a.toDateString() === b.toDateString();
+    if (sameDay(d, today)) return `aujourd’hui à ${hm(d)}`;
+    if (sameDay(d, yesterday)) return `hier à ${hm(d)}`;
+    return `le ${d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' })} à ${hm(d)}`;
+  }
+  const since = (unix: number) => `depuis le ${new Date(unix * 1000).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}`;
+
+  const pageLabels: Record<string, string> = {
+    '/': 'l’accueil', '/compte': 'Mon compte', '/admin': 'le tableau de bord', '/login': 'la connexion',
+    '/register': 'l’inscription', '/conditions': 'les conditions', '/confidentialite': 'la confidentialité',
+  };
+  const pageLabel = (path: string) => pageLabels[path] || 'une page';
+  const who = (email: string | null) => email || 'Un visiteur';
+
+  function eventSentence(e: any): string {
+    const name = who(e.email);
+    switch (e.type) {
+      case 'page_view': return `${name} a consulté ${pageLabel(e.path)} ${when(e.created_at)}`;
+      case 'signup': return `${name} a créé son compte ${when(e.created_at)}`;
+      case 'login': return `${name} s’est connecté ${when(e.created_at)}`;
+      case 'logout': return `${name} s’est déconnecté ${when(e.created_at)}`;
+      default: return `${name} a fait une action ${when(e.created_at)}`;
+    }
+  }
+
+  const adminActions: Record<string, string> = {
+    view_overview: 'a consulté le tableau de bord',
+    view_users: 'a consulté la liste des comptes',
+    view_account: 'a ouvert la fiche d’un compte',
+    view_user_activity: 'a consulté l’activité d’un compte',
+    set_account_kind: 'a changé la catégorie d’un compte',
+  };
+
+  // ----- Variations et courbes -----
+  function delta(now: number, before: number, period = 'la semaine précédente') {
+    if (before === 0 && now === 0) return { text: `Stable par rapport à ${period}`, cls: 'flat' };
+    if (before === 0) return { text: `Nouveau par rapport à ${period}`, cls: 'up' };
+    const pct = Math.round(((now - before) / before) * 100);
+    if (pct === 0) return { text: `Stable par rapport à ${period}`, cls: 'flat' };
+    return { text: `${pct > 0 ? '+' : ''}${pct} % par rapport à ${period}`, cls: pct > 0 ? 'up' : 'down' };
+  }
+  function showDelta(id: string, d: { text: string; cls: string }) {
+    const el = $(id);
+    el.textContent = d.text;
+    el.className = `d-delta d-delta--${d.cls}`;
+  }
+
+  const SVG_NS = 'http://www.w3.org/2000/svg';
+  function drawChart(days: { day: string; visits: number; signups: number }[]) {
+    const svg = $('chart') as unknown as SVGSVGElement;
+    svg.replaceChildren();
+    const series = [
+      { key: 'visits' as const, color: 'var(--copper)' },
+      { key: 'signups' as const, color: 'var(--pos)' },
+    ];
+    const max = Math.max(1, ...days.flatMap((d) => [Number(d.visits) || 0, Number(d.signups) || 0]));
+    const n = Math.max(days.length, 2);
+    for (const s of series) {
+      const points = days.map((d, i) => {
+        const x = (i / (n - 1)) * 310 + 5;
+        const y = 130 - ((Number(d[s.key]) || 0) / max) * 115;
+        return `${x.toFixed(1)},${y.toFixed(1)}`;
+      });
+      const path = document.createElementNS(SVG_NS, 'polyline');
+      path.setAttribute('points', points.join(' '));
+      path.setAttribute('fill', 'none');
+      path.setAttribute('stroke', s.color);
+      path.setAttribute('stroke-width', '2.5');
+      path.setAttribute('stroke-linejoin', 'round');
+      path.setAttribute('vector-effect', 'non-scaling-stroke');
+      svg.appendChild(path);
+    }
+  }
+
+  // Les 14 jours, même sans données (zéro), pour une courbe régulière
+  function fourteenDays(rows: any[]) {
+    const byDay = new Map(rows.map((r) => [r.day, r]));
+    const out: { day: string; visits: number; signups: number }[] = [];
+    for (let i = 13; i >= 0; i--) {
+      const d = new Date(Date.now() - i * 86400000);
+      const key = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+      const r = byDay.get(key);
+      out.push({ day: key, visits: Number(r?.visits) || 0, signups: Number(r?.signups) || 0 });
+    }
+    return out;
+  }
 
   async function loadOverview() {
     const { ok, data } = await api.adminOverview();
-    if (!ok) return showError(data?.error || 'Vue d’ensemble indisponible.');
-    const cards: [string, string][] = [
-      ['Comptes', String(data.accounts)],
-      ['Actifs 24 h', String(data.active['1'])],
-      ['Actifs 7 jours', String(data.active['7'])],
-      ['Inscriptions 7 jours', String(data.signups['7'])],
-      ['Inscriptions 30 jours', String(data.signups['30'])],
-      ['Visites 7 jours', String(data.visits['7'])],
-    ];
-    document.getElementById('overview')!.replaceChildren(...cards.map(([label, value]) => {
-      const card = document.createElement('div');
-      card.className = 'rounded-2xl px-4 py-3 border';
-      card.style.borderColor = 'var(--line-2)';
-      const v = document.createElement('div');
-      v.className = 'font-serif text-2xl font-semibold';
-      v.textContent = value;
-      const l = document.createElement('div');
-      l.style.color = 'var(--text-2)';
-      l.textContent = label;
-      card.append(v, l);
-      return card;
-    }));
-    fillList('top-paths', data.topPaths30.map((p: any) => item([`${p.path || '/'} · ${p.n}`])), 'Aucune visite enregistrée (consentement requis).');
-    const deviceLabel: Record<string, string> = { mobile: 'Mobile', desktop: 'Ordinateur' };
-    fillList('devices', data.devices30.map((d: any) => item([`${deviceLabel[d.device] || d.device} · ${d.n}`])), 'Aucune donnée.');
-    // Barres proportionnelles : visites (couleur d'accent) et inscriptions, sur le jour le plus chargé
-    const rows: any[] = data.daily14 || [];
-    const max = Math.max(1, ...rows.map((r) => Number(r.visits) || 0));
-    fillList('daily', rows.map((r) => {
-      const li = document.createElement('li');
-      const head = document.createElement('div');
-      head.textContent = `${r.day} · ${Number(r.visits) || 0} visite(s) · ${Number(r.signups) || 0} inscription(s)`;
-      const bar = document.createElement('div');
-      bar.className = 'h-2 rounded-full mt-1';
-      bar.style.background = 'var(--line-2)';
-      const fill = document.createElement('div');
-      fill.className = 'h-2 rounded-full';
-      fill.style.background = 'var(--copper)';
-      fill.style.width = `${Math.round(((Number(r.visits) || 0) / max) * 100)}%`;
-      bar.appendChild(fill);
-      li.append(head, bar);
-      return li;
-    }), 'Aucune activité sur 14 jours.');
+    if (!ok) return showError(data?.error || 'Tableau de bord indisponible.');
+    $('kpi-accounts').textContent = String(data.accounts);
+    $('kpi-active').textContent = String(data.active['7']);
+    $('kpi-signups').textContent = String(data.signups['7']);
+    $('kpi-visits').textContent = String(data.visits['7']);
+    showDelta('delta-active', delta(data.active['7'], data.previous7.active));
+    showDelta('delta-signups', delta(data.signups['7'], data.previous7.signups));
+    showDelta('delta-visits', delta(data.visits['7'], data.previous7.visits));
+    drawChart(fourteenDays(data.daily14 || []));
+
+    setList('top-paths', data.topPaths30.map((p: any) => card(pageLabel(p.path || '/'), [`${p.n} visite(s)`])), 'Aucune visite enregistrée (mesure d’audience acceptée requise).');
+    const deviceLabel: Record<string, string> = { mobile: 'Téléphone', desktop: 'Ordinateur' };
+    setList('devices', data.devices30.map((d: any) => card(deviceLabel[d.device] || 'Autre', [`${d.n} visite(s)`])), 'Aucune donnée.');
   }
 
-  const kinds = ['reel', 'test', 'agent', 'interne'];
+  // ----- Comptes -----
   const kindLabels: Record<string, string> = { reel: 'Réel', test: 'Test', agent: 'Agent', interne: 'Interne' };
+  let currentKindUser: { id: string; name: string; email: string; kind: string } | null = null;
 
   async function loadUsers(q = '') {
-    const reelOnly = (document.getElementById('reel-only') as HTMLInputElement).checked;
+    const reelOnly = ($('reel-only') as HTMLInputElement).checked;
     const { ok, data } = await api.adminUsers(q, reelOnly);
     if (!ok) return showError(data?.error || 'Liste indisponible.');
-    fillList('user-list', data.users.map((u: any) => {
-      const lines = [`${u.name || '(sans nom)'}${u.is_admin ? ' · admin' : ''}`, u.email,
-        `Catégorie : ${kindLabels[u.account_kind] || u.account_kind}`,
-        `Inscrit : ${u.created_at} · Dernière connexion : ${u.last_login_at ? date(u.last_login_at) : 'jamais'}`];
-      const el = item(lines);
-      const select = document.createElement('select');
-      select.className = 'mt-2 h-9 rounded-xl px-2 bg-transparent border text-xs';
-      select.style.borderColor = 'var(--line-2)';
-      for (const kind of kinds) {
-        const opt = document.createElement('option');
-        opt.value = kind;
-        opt.textContent = kindLabels[kind];
-        opt.selected = kind === u.account_kind;
-        select.appendChild(opt);
-      }
-      select.addEventListener('change', async () => {
-        const res = await api.setAccountKind(u.id, select.value);
-        if (!res.ok) showError(res.data?.error || 'Changement refusé.');
-        else loadOverview();
-      });
-      el.appendChild(select);
-      const btn = document.createElement('button');
-      btn.type = 'button';
-      btn.className = 'mt-2 text-xs underline';
-      btn.style.color = 'var(--copper)';
-      btn.textContent = 'Voir l’activité de ce compte';
-      btn.addEventListener('click', () => loadEvents({ user_id: u.id, days: '90' }));
-      const fiche = document.createElement('button');
-      fiche.type = 'button';
-      fiche.className = 'mt-2 ml-3 text-xs underline';
-      fiche.style.color = 'var(--copper)';
-      fiche.textContent = 'Fiche détaillée';
-      fiche.addEventListener('click', () => loadAccount(u.id));
-      el.append(btn, fiche);
+    const items = data.users.map((u: any) => {
+      const el = card(`${u.name || 'Sans nom'}${u.is_admin ? ' · administrateur' : ''}`, [
+        u.email,
+        u.last_login_at ? `Dernière connexion ${when(u.last_login_at)}` : 'Ne s’est jamais connecté',
+      ]);
+      const chip = document.createElement('span');
+      chip.className = u.account_kind === 'reel' ? 'd-chip' : 'd-chip d-chip--off';
+      chip.textContent = kindLabels[u.account_kind] || u.account_kind;
+      const actions = document.createElement('div');
+      actions.className = 'd-item-actions';
+      const kindBtn = document.createElement('button');
+      kindBtn.type = 'button';
+      kindBtn.className = 'd-btn';
+      kindBtn.textContent = 'Catégorie';
+      kindBtn.addEventListener('click', () => openKindSheet({ id: u.id, name: u.name || u.email, email: u.email, kind: u.account_kind }));
+      const ficheBtn = document.createElement('button');
+      ficheBtn.type = 'button';
+      ficheBtn.className = 'd-btn';
+      ficheBtn.textContent = 'Voir la fiche';
+      ficheBtn.addEventListener('click', () => loadAccount(u.id));
+      actions.append(kindBtn, ficheBtn);
+      el.prepend(chip);
+      el.appendChild(actions);
       return el;
-    }), 'Aucun compte.');
+    });
+    setList('user-list', items, 'Aucun compte à afficher.');
   }
 
-  async function loadEvents(params: Record<string, string>) {
-    const { ok, data } = await api.adminEvents(params);
-    if (!ok) return showError(data?.error || 'Activité indisponible.');
-    fillList('event-list', data.events.map((e: any) => item([
-      `${labels[e.type] || e.type} · ${e.path || ''}`,
-      `${date(e.created_at)} · ${e.device === 'mobile' ? 'mobile' : 'ordinateur'}${e.email ? ' · ' + e.email : ''}`,
-    ])), 'Aucun événement pour ces critères.');
+  // ----- Feuille de confirmation pour la catégorie -----
+  function openKindSheet(user: { id: string; name: string; email: string; kind: string }) {
+    currentKindUser = user;
+    $('sheet-name').textContent = `${user.name} (${user.email})`;
+    (document.querySelectorAll<HTMLInputElement>('input[name="kind"]')).forEach((r) => { r.checked = r.value === user.kind; });
+    $('kind-sheet').removeAttribute('hidden');
   }
+  function closeKindSheet() {
+    $('kind-sheet').setAttribute('hidden', '');
+    currentKindUser = null;
+  }
+  $('kind-sheet').addEventListener('click', (e) => {
+    if ((e.target as HTMLElement).closest('[data-sheet-close]')) closeKindSheet();
+  });
+  $('sheet-confirm').addEventListener('click', async () => {
+    const target = currentKindUser;
+    if (!target) return;
+    const chosen = (document.querySelector<HTMLInputElement>('input[name="kind"]:checked'))?.value || target.kind;
+    closeKindSheet();
+    if (chosen === target.kind) return;
+    const userId = target.id;
+    const { ok, data } = await api.setAccountKind(userId, chosen);
+    if (!ok) return showError(data?.error || 'Changement refusé.');
+    await Promise.all([loadUsers(String(new FormData($('user-search') as HTMLFormElement).get('q') || '').trim()), loadOverview(), loadJournal()]);
+  });
 
-  const dateOrNever = (unix: number | null) => (unix ? date(unix) : 'jamais');
-
+  // ----- Fiche du compte, en phrases -----
   async function loadAccount(id: string) {
     const { ok, data } = await api.adminAccount(id);
     if (!ok) return showError(data?.error || 'Fiche indisponible.');
     const f = data;
+    const name = f.identity.name || f.identity.email;
+    const d = f.dates;
+    const logins = f.frequency.logins90 ?? 0;
     const rows: HTMLElement[] = [
-      item([`${f.identity.name || '(sans nom)'}${f.identity.is_admin ? ' · admin' : ''}`, f.identity.email,
-        `Catégorie : ${kindLabels[f.identity.account_kind] || f.identity.account_kind}`]),
-      item(['État', f.state]),
-      item(['Dates', `Création : ${f.dates.created_at}`,
-        `Première connexion : ${dateOrNever(f.dates.first_login)}`,
-        `Dernière connexion : ${dateOrNever(f.dates.last_login)}`,
-        `Dernière activité : ${dateOrNever(f.dates.last_activity)}`]),
-      item(['Fréquence', `Jours actifs : ${f.frequency.active_days_7} (7 j) · ${f.frequency.active_days_30} (30 j) · ${f.frequency.active_days_90} (90 j)`,
-        `Connexions : ${f.frequency.logins_last_7_days} sur 7 jours · ${f.frequency.logins_per_week_90} par semaine (90 j)`,
-        `Série en cours : ${f.frequency.streak_days} jour(s)`]),
-      item(['Actions (90 jours)', ...(f.actions90.length ? f.actions90.map((a: any) => `${labels[a.type] || a.type} : ${a.n}`) : ['Aucune action'])]),
-      item(['Pages vues (90 jours)', ...(f.pages90.length ? f.pages90.map((p: any) => `${p.path || '/'} : ${p.n}`) : [f.pagesNote])]),
-      item(['Appareils (90 jours)', ...(f.devices90.length ? f.devices90.map((d: any) => `${d.device === 'mobile' ? 'Mobile' : 'Ordinateur'} : ${d.n}`) : ['Aucune donnée'])]),
-      item(['Chronologie (50 derniers événements)', ...(f.chronology.length ? f.chronology.map((e: any) => `${date(e.created_at)} · ${labels[e.type] || e.type} · ${e.path || ''}`) : ['Aucun événement'])]),
+      card(name, [f.identity.email, `Catégorie : ${kindLabels[f.identity.account_kind] || f.identity.account_kind}`]),
+      card('Connexions', [
+        d.first_login ? `S’est connecté ${logins} fois ces 90 derniers jours, première connexion ${since(d.first_login)}.` : 'Ne s’est jamais connecté.',
+      ]),
+      card('Présence', [
+        `Actif ${f.frequency.active_days_7} jours sur les 7 derniers.`,
+        `Actif ${f.frequency.active_days_30} jours sur les 30 derniers.`,
+        f.frequency.streak_days > 0 ? `Série en cours : ${f.frequency.streak_days} jour(s) d’affilée.` : 'Pas de série en cours.',
+      ]),
+      card('Dernières traces', [
+        d.last_activity ? `Dernière activité : ${when(d.last_activity)}.` : 'Aucune activité enregistrée.',
+        d.last_visit ? `Dernière visite : ${when(d.last_visit)}.` : 'Aucune visite enregistrée (mesure d’audience non acceptée ou aucune visite).',
+      ]),
+      card('État', [f.state]),
+      card('Pages visitées (90 jours)', f.pages90.length
+        ? f.pages90.slice(0, 5).map((p: any) => `${pageLabel(p.path || '/')} : ${p.n} fois`)
+        : [f.pagesNote || 'Aucune page visitée.']),
+      card('Appareils (90 jours)', f.devices90.length
+        ? f.devices90.map((x: any) => `${x.device === 'mobile' ? 'Téléphone' : 'Ordinateur'} : ${x.n} fois`)
+        : ['Aucune donnée.']),
+      card('Dernières actions', f.chronology.length
+        ? f.chronology.slice(0, 15).map((e: any) => eventSentence(e))
+        : ['Aucune action enregistrée.']),
     ];
-    document.getElementById('account-detail')!.replaceChildren(...rows);
-    document.getElementById('account-panel')!.removeAttribute('hidden');
-    document.getElementById('account-panel')!.scrollIntoView({ behavior: 'smooth' });
+    $('account-detail').replaceChildren(...rows);
+    $('account-panel').removeAttribute('hidden');
+    $('account-panel').scrollIntoView({ behavior: 'smooth' });
   }
+  $('account-close').addEventListener('click', () => $('account-panel').setAttribute('hidden', ''));
 
-  document.getElementById('account-close')?.addEventListener('click', () => {
-    document.getElementById('account-panel')!.setAttribute('hidden', '');
-  });
+  // ----- Activité et journal -----
+  async function loadEvents(params: Record<string, string>) {
+    const { ok, data } = await api.adminEvents(params);
+    if (!ok) return showError(data?.error || 'Activité indisponible.');
+    setList('event-list', data.events.map((e: any) => card(eventSentence(e), [])), 'Aucune action pour ces critères.');
+  }
 
   async function loadJournal() {
     const { ok, data } = await api.adminJournal();
     if (!ok) return showError(data?.error || 'Journal indisponible.');
-    fillList('journal', data.entries.map((j: any) => item([
-      `${j.action}${j.target ? ' · ' + j.target : ''}`,
-      `${date(j.created_at)} · ${j.admin_email || 'inconnu'}`,
-    ])), 'Aucun accès enregistré.');
+    setList('journal', data.entries.map((j: any) => card(
+      `${who(j.admin_email)} ${adminActions[j.action] || 'a fait une action'}`,
+      [when(j.created_at)],
+    )), 'Aucun accès enregistré.');
   }
 
   (async () => {
@@ -253,22 +368,21 @@ import AppLayout from '../layouts/AppLayout.astro';
       window.location.replace('/');
       return;
     }
-    document.getElementById('auth-gate')?.setAttribute('hidden', '');
-    document.getElementById('admin-root')?.removeAttribute('hidden');
+    $('auth-gate').setAttribute('hidden', '');
+    $('admin-root').removeAttribute('hidden');
 
     await Promise.all([loadOverview(), loadUsers(), loadEvents({ days: '7' }), loadJournal()]);
 
-    document.getElementById('user-search')?.addEventListener('submit', (e) => {
+    $('user-search').addEventListener('submit', (e) => {
       e.preventDefault();
       loadUsers(String(new FormData(e.target as HTMLFormElement).get('q') || '').trim());
     });
-    document.getElementById('reel-only')?.addEventListener('change', () => loadUsers());
-    document.getElementById('event-filter')?.addEventListener('submit', (e) => {
+    $('reel-only').addEventListener('change', () => loadUsers());
+    $('event-filter').addEventListener('submit', (e) => {
       e.preventDefault();
       const fd = new FormData(e.target as HTMLFormElement);
       const params: Record<string, string> = { days: String(fd.get('days') || '7') };
       if (fd.get('type')) params.type = String(fd.get('type'));
-      if (fd.get('user_id')) params.user_id = String(fd.get('user_id')).trim();
       loadEvents(params).then(loadJournal);
     });
   })();
