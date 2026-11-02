@@ -9,6 +9,7 @@ sous « Reporté dans ».
 - Colonne `users.account_kind` (reel, test, agent, interne ; défaut reel), route admin `account_kind.php` tracée dans `admin_log`.
 - Menu par compte dans la liste, filtre pour masquer les comptes non réels, exclusion de ces comptes de `overview.php`.
 - Tests : 84 contrôles.
+- Fiche détaillée par compte (`account.php`) : dates, fréquence, état, actions, pages, appareils, chronologie. Consultation tracée.
 
 ## 2026-11-02 (bannière de consentement définitive)
 

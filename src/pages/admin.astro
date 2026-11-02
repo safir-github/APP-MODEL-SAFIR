@@ -30,6 +30,14 @@ import AppLayout from '../layouts/AppLayout.astro';
       <ul id="user-list" class="space-y-2 text-sm"></ul>
     </section>
 
+    <section id="account-panel" class="mb-8" hidden>
+      <div class="flex items-center justify-between mb-3">
+        <h2 class="font-semibold">Fiche du compte</h2>
+        <button id="account-close" type="button" class="text-sm underline" style="color: var(--copper)">Fermer</button>
+      </div>
+      <ul id="account-detail" class="space-y-2 text-sm"></ul>
+    </section>
+
     <section class="mb-8">
       <h2 class="font-semibold mb-3">Activité</h2>
       <form id="event-filter" class="grid grid-cols-2 gap-2 mb-3 text-sm">
@@ -155,7 +163,13 @@ import AppLayout from '../layouts/AppLayout.astro';
       btn.style.color = 'var(--copper)';
       btn.textContent = 'Voir l’activité de ce compte';
       btn.addEventListener('click', () => loadEvents({ user_id: u.id, days: '90' }));
-      el.appendChild(btn);
+      const fiche = document.createElement('button');
+      fiche.type = 'button';
+      fiche.className = 'mt-2 ml-3 text-xs underline';
+      fiche.style.color = 'var(--copper)';
+      fiche.textContent = 'Fiche détaillée';
+      fiche.addEventListener('click', () => loadAccount(u.id));
+      el.append(btn, fiche);
       return el;
     }), 'Aucun compte.');
   }
@@ -168,6 +182,37 @@ import AppLayout from '../layouts/AppLayout.astro';
       `${date(e.created_at)} · ${e.device === 'mobile' ? 'mobile' : 'ordinateur'}${e.email ? ' · ' + e.email : ''}`,
     ])), 'Aucun événement pour ces critères.');
   }
+
+  const dateOrNever = (unix: number | null) => (unix ? date(unix) : 'jamais');
+
+  async function loadAccount(id: string) {
+    const { ok, data } = await api.adminAccount(id);
+    if (!ok) return showError(data?.error || 'Fiche indisponible.');
+    const f = data;
+    const rows: HTMLElement[] = [
+      item([`${f.identity.name || '(sans nom)'}${f.identity.is_admin ? ' · admin' : ''}`, f.identity.email,
+        `Catégorie : ${kindLabels[f.identity.account_kind] || f.identity.account_kind}`]),
+      item(['État', f.state]),
+      item(['Dates', `Création : ${f.dates.created_at}`,
+        `Première connexion : ${dateOrNever(f.dates.first_login)}`,
+        `Dernière connexion : ${dateOrNever(f.dates.last_login)}`,
+        `Dernière activité : ${dateOrNever(f.dates.last_activity)}`]),
+      item(['Fréquence', `Jours actifs : ${f.frequency.active_days_7} (7 j) · ${f.frequency.active_days_30} (30 j) · ${f.frequency.active_days_90} (90 j)`,
+        `Connexions : ${f.frequency.logins_last_7_days} sur 7 jours · ${f.frequency.logins_per_week_90} par semaine (90 j)`,
+        `Série en cours : ${f.frequency.streak_days} jour(s)`]),
+      item(['Actions (90 jours)', ...(f.actions90.length ? f.actions90.map((a: any) => `${labels[a.type] || a.type} : ${a.n}`) : ['Aucune action'])]),
+      item(['Pages vues (90 jours)', ...(f.pages90.length ? f.pages90.map((p: any) => `${p.path || '/'} : ${p.n}`) : [f.pagesNote])]),
+      item(['Appareils (90 jours)', ...(f.devices90.length ? f.devices90.map((d: any) => `${d.device === 'mobile' ? 'Mobile' : 'Ordinateur'} : ${d.n}`) : ['Aucune donnée'])]),
+      item(['Chronologie (50 derniers événements)', ...(f.chronology.length ? f.chronology.map((e: any) => `${date(e.created_at)} · ${labels[e.type] || e.type} · ${e.path || ''}`) : ['Aucun événement'])]),
+    ];
+    document.getElementById('account-detail')!.replaceChildren(...rows);
+    document.getElementById('account-panel')!.removeAttribute('hidden');
+    document.getElementById('account-panel')!.scrollIntoView({ behavior: 'smooth' });
+  }
+
+  document.getElementById('account-close')?.addEventListener('click', () => {
+    document.getElementById('account-panel')!.setAttribute('hidden', '');
+  });
 
   async function loadJournal() {
     const { ok, data } = await api.adminJournal();

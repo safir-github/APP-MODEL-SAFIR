@@ -42,6 +42,7 @@ export const api = {
     request('/api/auth/request_email_change.php', { method: 'POST', body: JSON.stringify({ password, email }) }),
   adminUsers: (q = '', reelOnly = false) =>
     request(`/api/admin/users.php?q=${encodeURIComponent(q)}${reelOnly ? '&reel=1' : ''}`),
+  adminAccount: (id: string) => request(`/api/admin/account.php?id=${encodeURIComponent(id)}`),
   setAccountKind: (userId: string, kind: string) =>
     request('/api/admin/account_kind.php', { method: 'POST', body: JSON.stringify({ user_id: userId, kind }) }),
   adminOverview: () => request('/api/admin/overview.php'),
